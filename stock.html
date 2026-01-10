@@ -64,7 +64,7 @@
         const ctx=pt4.getContext("2d")
         function updt()
         {
-            if(stocks.length>100)stocks.shift()
+            if(stocks.length>500)stocks.shift()
             pt1.textContent=`You have ${money.toFixed(2)} coin`;
             pt2.textContent=`Stock price:${stock.toFixed(2)} coin`;
             pt3.textContent=`You have ${instock.toFixed(2)} stocks | Stock quantity:${(stock*instock).toFixed(2)} coin`;
