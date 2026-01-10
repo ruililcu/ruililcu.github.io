@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--Including Poppins...-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <title>Stock</title>
+    <style>
+        body
+        {
+            font-family:"Poppins","Cascadia Mono",sans-serif;
+            background-color:black;
+            color:limegreen;
+        }
+        h1
+        {
+            text-align:center;
+            background-color:black;
+        }
+        button
+        {
+            width:150px;
+            height:70px;
+            border:none;
+            border-radius:4px;
+            color:navy;
+            background-color:darkgray;
+            transition:all 0.4s ease;
+        }
+        button:hover
+        {
+            filter:brightness(0.8);
+            transform:scale(1.2);
+        }
+        button:active
+        {
+            filter:brightness(1.1);
+            transform:scale(0.9);
+        }
+    </style>
+</head>
+<body>
+    <h1 id="0">Stock Simu</h1>
+    <h2 id="1">You have 100.00 coin</h2>
+    <p id="2">Stock price:10.00 coin</p>
+    <p id="3"></p>
+    <canvas id="4" width="400" height="300"></canvas>
+    <br>
+    <button onclick="buy()" style="background-color:lightcoral">buy 1</button>
+    <button onclick="sell()" style="background-color:aquamarine;">sell 1</button>
+    <script>
+        money=100
+        stock=10
+        instock=0
+        stocks=[10]
+        const _pt0=document.getElementById(0);
+        const pt1=document.getElementById(1);
+        const pt2=document.getElementById(2);
+        const pt3=document.getElementById(3);
+        const pt4=document.getElementById(4);
+        const ctx=pt4.getContext("2d")
+        function updt()
+        {
+            if(stocks.length>100)stocks.shift()
+            pt1.textContent=`You have ${money.toFixed(2)} coin`;
+            pt2.textContent=`Stock price:${stock.toFixed(2)} coin`;
+            pt3.textContent=`You have ${instock.toFixed(2)} stocks | Stock quantity:${(stock*instock).toFixed(2)} coin`;
+            graphics()
+        }
+        function tick()
+        {
+            if(Math.random()>0.5)stock*=(Math.random()/25)+1
+            else stock/=(Math.random()/25)+1
+            stocks.push(stock)
+            updt()
+        }
+        function buy()
+        {
+            if(money>stock)
+            {
+                money-=stock;
+                instock++;
+                updt()
+            }
+        }
+        function sell()
+        {
+            if(instock>0)
+            {
+                money+=stock
+                instock--;
+                updt()
+            }
+        }
+        function graphics()
+        {
+            const maxPrice=Math.max(...stocks);
+            const minPrice=Math.min(...stocks);
+            const range=maxPrice-minPrice;
+            ctx.clearRect(0,0,pt4.width,pt4.height);
+            ctx.beginPath();
+            ctx.moveTo(0,250-(stocks[0]-minPrice)/range*200);
+            for(let i=1;i<stocks.length;i++)
+                ctx.lineTo(400*i/stocks.length,250-(stocks[i]-minPrice)/range*200);
+            if(stock>12)ctx.strokeStyle='green'
+            else if(stock<8)ctx.strokeStyle='red';
+            else ctx.strokeStyle='lemonchiffon';
+            ctx.lineWidth=2;
+            ctx.stroke();
+        }
+        let hue=123;
+        setInterval(()=>{hue+=0.2;hue%=360;_pt0.style.color=`hsl(${hue},75%,40%)`;},0.02);
+        setInterval(tick,20)
+    </script>
+</body>
+</html>
