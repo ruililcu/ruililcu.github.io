@@ -3,4 +3,5 @@ my website
 ## Collapscension:An incremental game!
 <a href="https://ruililcu.github.io/Collapscension/">Play</a>
 Screenshot!(maybe not on scale)
-<img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/1abf6ae8-926d-4edf-8aa7-bf96e88e3177" />
+<img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/c7b3c9cd-cb97-4475-8fcd-94eca9ff9964" />
+
