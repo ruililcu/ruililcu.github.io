@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>THE INFINITY HOTEL</title>
+    <style>
+        body
+        {
+            background-color:#cba;
+            background-repeat:no-repeat;
+            color:#bdf;
+            min-height:73vh;
+        }
+        h1
+        {
+            color:#9e2;
+            text-align:center;
+            transform-origin:center center;
+            margin:1.5em 0;
+        }
+        button
+        {
+            background-color:#2e9;
+            padding:10px 14px;
+            border:none;
+            outline:none;
+            border-radius:2px;
+            transition:all 0.4s ease; 
+        }
+        button:hover
+        {
+            filter:brightness(0.7)hue-rotate(70deg);
+            transform:scale(1.2);
+        }
+        button:active
+        {
+            filter:brightness(1.1)hue-rotate(-20deg);
+            transform:scale(0.9);
+        }
+        .Fborder
+        {
+            width:210px;
+            overflow:auto; 
+            background-color:#46d;
+            display:none;
+            text-align:center;
+        }
+    </style>
+</head>
+<body>
+    <h1>THE INFINITY HOTEL</h1>
+    Welcome To Infinity Hotel!
+    <p id="Floor" style="width:70%;overflow:auto;">You're On The Ground Floor(1F)</p>
+    <button onclick="Add()">+1F</button>
+    <button onclick="Sub()">-1F</button>
+    <br>
+    <input type="text" id="Input" style="display:none" placeholder="Enter Floor...">
+    <button onclick="Got()" id="G.T.F" style="display:none">Go That Floor!</button>
+    <button onclick="To3()" id="To3" style="display:none">Back To Nearest Warp Station</button>
+    <p id="Unique" style="width:70%;overflow:auto;">You're on The Lobby.</p>
+    <div class="Fborder" id="Fborder">
+        <h1 style="color:#456;">BORDER</h1>
+        <p>We're on...</p>
+        <h2 id="FFloor"></h2>
+        <p id="Fmeter"></p>
+    </div>
+    <script>
+        const dFloor=document.getElementById("Floor");
+        const dInput=document.getElementById("Input");
+        const thing=document.getElementById("Unique");
+        const gTF=document.getElementById("G.T.F");
+        const tT3=document.getElementById("To3");
+        const ff=document.getElementById("Fborder");
+        const fFloor=document.getElementById("FFloor");
+        const fMeter=document.getElementById("Fmeter");
+        thing.style.whiteSpace="pre-line";
+        let Floor=BigInt(1);
+        let uniqueThings=
+        [
+            "A desk for rest",/*1*/
+            "A clean public toilet",/*2*/
+            "A trash can",/*4*/
+            "A beautiful picture",/*8*/
+            "A beautiful photo",/*16*/
+            "Photos of this hotel",/*32*/
+            "A robot can service",/*64*/
+            "A beautiful view",/*128*/
+            "A Computer",/*256*/
+            "Things about This Hotel",/*512*/
+            "Odd Kilo milestones",/*1k*/
+            "A large screen",/*2k*/
+            "A large trash can",/*4k*/
+            "A large picture",/*8k*/
+            "A large photo",/*16k*/
+            "large Photos of this hotel",/*32k*/
+            "A super-intelligent robot can service",/*64k*/
+            "A beautiful public room",/*128k*/
+            "A Quantum Computer",/*256k*/
+            "Things about The Universe"/*512k*/
+        ]
+        Floor=BigInt(dInput.textContent.value);
+        dFloor.textContent=`You're On ${Floor}F`;
+        function Add()
+        {
+            Floor+=BigInt(1);
+            Upd();
+        }
+        function Sub()
+        {
+            Floor-=BigInt(1);
+            Upd();
+        }
+        function BONUS()
+        {
+            return new Promise(resolve=>setTimeout(resolve,1000));
+        }
+        function Upd()
+        {
+            Bgupd();
+            Floorupd();
+            uniqueUpdate();
+        }
+        function Bgupd()
+        {
+            dInput.style.display="none";
+            gTF.style.display="none";
+            ff.style.display="none";
+            thing.textContent="";
+            if(Floor>BigInt(10)**BigInt(33))
+            {
+                thing.textContent+=`You gone too far.\nYou're not on this Universe.
+                You're on Universe#${(Floor/BigInt(10)**BigInt(33))^BigInt(998244353)}
+                you're ${Floor/BigInt(2365134051767004000000000)} Billion ly above the ground;
+                you're ${Floor/BigInt(217592332762564357234098176)} Observable universe(s) above the ground\n`
+                document.body.style.backgroundImage="none";
+                document.body.style.backgroundColor="#426";
+            } 
+            else if(Floor>BigInt(2000000000))
+            {
+                thing.textContent+=`You gone too far.
+                you're ${Floor/BigInt(250)}km above the earth;
+                you're ${Floor/BigInt(37500000000)}au above the ground;
+                you're ${Floor/BigInt(2365134051767004)}ly above the ground;
+                you're ${Floor/BigInt(217592332762564357234098176)} Observable universe(s) above the ground\n`
+                document.body.style.backgroundImage="none";
+                document.body.style.backgroundColor="#014";
+            } 
+            else if(Floor>BigInt(5000)) 
+            {
+                thing.textContent+=`You're on the space!you're ${Floor/BigInt(250)}km above the ground!\n`
+                document.body.style.backgroundImage="linear-gradient(to bottom,#014 0%,#39f 80%)";
+                document.body.style.backgroundColor="#2e7";
+            }
+            else if(Floor>BigInt(100)) 
+            {
+                document.body.style.backgroundImage="none";
+                document.body.style.backgroundColor="#abc";
+            } 
+            else if(Floor>BigInt(2)) 
+            {
+                document.body.style.backgroundImage="none";
+                document.body.style.backgroundColor="#bbb";
+            } 
+            else
+            {
+                document.body.style.backgroundImage="none";
+                document.body.style.backgroundColor="#cba";
+            }
+        }
+        async function Floorupd()
+        {
+            if(Floor<BigInt(1))Floor=BigInt(1);
+            dFloor.textContent=Floor==BigInt(1)?"You're On The Ground Floor(1F)":`You're On ${Floor}F`;
+            if(Floor%BigInt(998244350)==BigInt(3))
+            {
+                thing.textContent+=`This is a warp station.
+                You can quantum Floor-Warp and a Backer-To-Three.`;
+                dInput.style.display="inline";
+                gTF.style.display="inline";
+                tT3.style.display="inline";
+            }
+            if(Floor==BigInt(1))
+            {
+                thing.textContent+=`You're on The Lobby.
+                This is a BIG Lobby.There're lots of desks and chairs.`
+            }
+            else if(Floor%BigInt(54)==BigInt(2))
+            {
+                thing.textContent+=`This is a restaurant.
+                There are ${BigInt(234)-Floor%BigInt(57)+Floor/BigInt(333)} kinds of foods.`;
+            }
+            else if(Floor>BigInt(70)&&Floor/BigInt(23)%BigInt(4)==2)
+            {
+                thing.textContent+=`There are Office Rooms.
+                There are ${Floor%BigInt(31)+BigInt(9)*(Floor%BigInt(2))+Floor/BigInt(2001)} empty rooms
+                (Total rooms are ${BigInt(40)+Floor/BigInt(2001)}) `;
+            }
+            else if(Floor%BigInt(1024)==BigInt(21))
+            {
+                thing.textContent+=`This is a library.There're a LOTs of books.
+                There're ${BigInt(234)-Floor%BigInt(57)+Floor/BigInt(333)}.`;
+            }
+            else if(Floor%BigInt(552)==BigInt(4))
+            {
+                thing.textContent+=`This is a laundry room.come washing clothes!`;
+            }
+            else if(Floor%BigInt(1000000000)==BigInt(998244352))
+            {
+                document.body.style.backgroundImage="none";
+                document.body.style.backgroundColor="#d60";
+                thing.textContent+=`Welcome to the BONUS Room!You will
+                warp to another Floor in 3 Second!3...`;
+                await BONUS();
+                thing.textContent+="2..."
+                await BONUS();
+                thing.textContent+="1..."
+                await BONUS();
+                Floor=(Floor*BigInt(1103515245)+BigInt(12345))
+                %BigInt(2147483648)+Floor/BigInt(2147483648)*BigInt(2147483648)
+                Upd();
+            }
+            else
+            {
+                thing.textContent+=`There are guest rooms.`
+            }
+        }
+        function uniqueUpdate()
+        {
+            thing.textContent+="\n";
+            if(Floor>BigInt(100)&&Floor<BigInt(5000))
+            {
+                thing.textContent+=`There's a border to show Floor&meters high.`
+                ff.style.display="block";
+                fFloor.textContent=`${Floor}F`
+                fMeter.textContent=`${Floor*BigInt(4)}m`
+            }
+            if(Floor%BigInt(211)==BigInt(5))
+            {
+                thing.textContent+=`This is a GYM.You can do some sports. `;
+            }
+            if(Floor%BigInt(422)==BigInt(5))
+            {
+                thing.textContent+=`The GYM has a swimming pool,you also can swim.`;
+            }
+            thing.textContent+="\nThere also have:"
+            let idx=0;
+            let p=BigInt(1);
+            let floorCopy=Floor;
+            while(floorCopy)
+            {
+                if(floorCopy%BigInt(2))
+                {
+                    thing.textContent+=",\n";
+                    while(idx>=uniqueThings.length)
+                    {
+                        uniqueThings.push(
+                            `${btoa(BigInt(2)**BigInt(uniqueThings.length))}(Base64 Monster)`
+                        );
+                    }
+                    thing.textContent+=uniqueThings[idx];
+                }
+                idx++;
+                p*=BigInt(2);
+                floorCopy/=BigInt(2);
+            }
+        }
+        function Got()
+        {
+            const inputFloor=dInput.value.trim();
+            if(inputFloor&&/^\d+$/.test(inputFloor))
+            {
+                Floor=BigInt(inputFloor);
+                Upd();
+            }
+        }
+        function To3()
+        {
+            Floor=Floor/BigInt(998244350)*BigInt(998244350)+BigInt(3);
+            Upd();
+        }
+    </script>
+</body>
+</html>
