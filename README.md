@@ -30,7 +30,7 @@
         }
         a {
             background-color:aquamarine;
-            color:white;
+            color:navy;
             text-decoration: none;
             font-weight: 600;
             font-size: 1.2rem;
