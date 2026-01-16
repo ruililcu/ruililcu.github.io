@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>THE INFINITY HOTEL</title>
+    <style>
+        body
+        {
+            background-color:#cba;
+            background-repeat:no-repeat;
+            color:#bdf;
+            min-height:73vh;
+        }
+        h1
+        {
+            color:#9e2;
+            text-align:center;
+            transform-origin:center center;
+            margin:1.5em 0;
+        }
+        button
+        {
+            background-color:#2e9;
+            padding:10px 14px;
+            border:none;
+            outline:none;
+            border-radius:2px;
+            transition:all 0.4s ease; 
+        }
+        button:hover
+        {
+            filter:brightness(0.7)hue-rotate(70deg);
+            transform:scale(1.2);
+        }
+        button:active
+        {
+            filter:brightness(1.1)hue-rotate(-20deg);
+            transform:scale(0.9);
+        }
+        .Fborder
+        {
+            width:210px;
+            overflow:auto; 
+            background-color:#46d;
+            display:none;
+            text-align:center;
+        }
+    </style>
+</head>
+<body>
+    <h1>无限酒店</h1>
+    欢迎来到无限酒店!
+    <p id="Floor" style="width:70%;overflow:auto;">你在一楼</p>
+    <button onclick="Add()">+1F</button>
+    <button onclick="Sub()">-1F</button>
+    <br>
+    <input type="text" id="Input" style="display:none" placeholder="输入楼层...">
+    <button onclick="Got()" id="G.T.F" style="display:none">跃迁</button>
+    <button onclick="To3()" id="To3" style="display:none">去最近跃迁站</button>
+    <p id="Unique" style="width:70%;overflow:auto;">你在大堂.</p>
+    <div class="Fborder" id="Fborder">
+        <h1 style="color:#456;">面板</h1>
+        <p>我们在...</p>
+        <h2 id="FFloor"></h2>
+        <p id="Fmeter"></p>
+    </div>
+    <script>
+        const dFloor=document.getElementById("Floor");
+        const dInput=document.getElementById("Input");
+        const thing=document.getElementById("Unique");
+        const gTF=document.getElementById("G.T.F");
+        const tT3=document.getElementById("To3");
+        const ff=document.getElementById("Fborder");
+        const fFloor=document.getElementById("FFloor");
+        const fMeter=document.getElementById("Fmeter");
+        thing.style.whiteSpace="pre-line";
+        let Floor=BigInt(1);
+        let uniqueThings=
+        [
+            "休息桌",/*1*/
+            "一个干净的公共卫生间",/*2*/
+            "垃圾桶",/*4*/
+            "一幅画",/*8*/
+            "一张照片",/*16*/
+            "酒店照片",/*32*/
+            "服务机器人",/*64*/
+            "好的观景台",/*128*/
+            "电脑",/*256*/
+            "酒店的历史",/*512*/
+            "里程碑",/*1k*/
+            "大屏幕",/*2k*/
+            "大垃圾桶",/*4k*/
+            "巨大画",/*8k*/
+            "巨大照片",/*16k*/
+            "巨大酒店照片",/*32k*/
+            "超智能服务机器人",/*64k*/
+            "美丽的公共室",/*128k*/
+            "量子计算机",/*256k*/
+            "宇宙奥秘"/*512k*/
+        ]
+        Floor=BigInt(dInput.textContent.value);
+        dFloor.textContent=`你在${Floor}F`;
+        function Add()
+        {
+            Floor+=BigInt(1);
+            Upd();
+        }
+        function Sub()
+        {
+            Floor-=BigInt(1);
+            Upd();
+        }
+        function BONUS()
+        {
+            return new Promise(resolve=>setTimeout(resolve,1000));
+        }
+        function Upd()
+        {
+            Bgupd();
+            Floorupd();
+            uniqueUpdate();
+        }
+        function Bgupd()
+        {
+            dInput.style.display="none";
+            gTF.style.display="none";
+            ff.style.display="none";
+            thing.textContent="";
+            if(Floor>BigInt(10)**BigInt(33))
+            {
+                thing.textContent+=`你走太远了\n你不在此宇宙中.
+                你在第#${(Floor/BigInt(10)**BigInt(33))^BigInt(998244353)}号宇宙
+                ${Floor/BigInt(236513405176700400000000)}亿光年之外
+                you're ${Floor/BigInt(217592332762564357234098176)}个可观测宇宙`
+                document.body.style.backgroundImage="none";
+                document.body.style.backgroundColor="#426";
+            } 
+            else if(Floor>BigInt(2000000000))
+            {
+                thing.textContent+=`你走太远了
+                ${Floor/BigInt(250)}km之外
+                ${Floor/BigInt(37500000000)}天文单位之外
+                ${Floor/BigInt(2365134051767004)}光年之外
+                ${Floor/BigInt(217592332762564357234098176)个可观测宇宙`
+                document.body.style.backgroundImage="none";
+                document.body.style.backgroundColor="#014";
+            } 
+            else if(Floor>BigInt(5000)) 
+            {
+                thing.textContent+=`你在太空!在${Floor/BigInt(250)}km之外!\n`
+                document.body.style.backgroundImage="linear-gradient(to bottom,#014 0%,#39f 80%)";
+                document.body.style.backgroundColor="#2e7";
+            }
+            else if(Floor>BigInt(100)) 
+            {
+                document.body.style.backgroundImage="none";
+                document.body.style.backgroundColor="#abc";
+            } 
+            else if(Floor>BigInt(2)) 
+            {
+                document.body.style.backgroundImage="none";
+                document.body.style.backgroundColor="#bbb";
+            } 
+            else
+            {
+                document.body.style.backgroundImage="none";
+                document.body.style.backgroundColor="#cba";
+            }
+        }
+        async function Floorupd()
+        {
+            if(Floor<BigInt(1))Floor=BigInt(1);
+            dFloor.textContent=Floor==BigInt(1)?"你在一楼":`你在${Floor}F`;
+            if(Floor%BigInt(998244350)==BigInt(3))
+            {
+                thing.textContent+=`这是传送站
+                你可以量子跃迁`;
+                dInput.style.display="inline";
+                gTF.style.display="inline";
+                tT3.style.display="inline";
+            }
+            if(Floor==BigInt(1))
+            {
+                thing.textContent+=`你在大堂
+                有很多桌椅在这里`
+            }
+            else if(Floor%BigInt(54)==BigInt(2))
+            {
+                thing.textContent+=`这是餐厅
+                菜谱上${BigInt(234)-Floor%BigInt(57)+Floor/BigInt(333)}种食物`;
+            }
+            else if(Floor>BigInt(70)&&Floor/BigInt(23)%BigInt(4)==2)
+            {
+                thing.textContent+=`这是出租房
+                有${Floor%BigInt(31)+BigInt(9)*(Floor%BigInt(2))+Floor/BigInt(2001)}空房
+                (全部${BigInt(40)+Floor/BigInt(2001)}房间) `;
+            }
+            else if(Floor%BigInt(1024)==BigInt(21))
+            {
+                thing.textContent+=`这是图书馆,有很多书
+                有${BigInt(234)-Floor%BigInt(57)+Floor/BigInt(333)}本书目`;
+            }
+            else if(Floor%BigInt(552)==BigInt(4))
+            {
+                thing.textContent+=`这是洗衣房,你可以洗衣服`;
+            }
+            else if(Floor%BigInt(1000000000)==BigInt(998244352))
+            {
+                document.body.style.backgroundImage="none";
+                document.body.style.backgroundColor="#d60";
+                thing.textContent+=`欢迎来到彩蛋楼层!
+                三秒随机跃迁!3...`;
+                await BONUS();
+                thing.textContent+="2..."
+                await BONUS();
+                thing.textContent+="1..."
+                await BONUS();
+                Floor=(Floor*BigInt(1103515245)+BigInt(12345))
+                %BigInt(2147483648)+Floor/BigInt(2147483648)*BigInt(2147483648)
+                Upd();
+            }
+            else
+            {
+                thing.textContent+=`There are guest rooms.`
+            }
+        }
+        function uniqueUpdate()
+        {
+            thing.textContent+="\n";
+            if(Floor>BigInt(100)&&Floor<BigInt(5000))
+            {
+                thing.textContent+=`这有面板`
+                ff.style.display="block";
+                fFloor.textContent=`${Floor}F`
+                fMeter.textContent=`${Floor*BigInt(4)}m`
+            }
+            if(Floor%BigInt(211)==BigInt(5))
+            {
+                thing.textContent+=`这有一个健身房`;
+            }
+            if(Floor%BigInt(422)==BigInt(5))
+            {
+                thing.textContent+=`看!健身房里还有泳池!`;
+            }
+            thing.textContent+="\n这里还有:"
+            let idx=0;
+            let p=BigInt(1);
+            let floorCopy=Floor;
+            while(floorCopy)
+            {
+                if(floorCopy%BigInt(2))
+                {
+                    thing.textContent+=",\n";
+                    while(idx>=uniqueThings.length)
+                    {
+                        uniqueThings.push(
+                            `${btoa(BigInt(2)**BigInt(uniqueThings.length))}(Base64怪物)`
+                        );
+                    }
+                    thing.textContent+=uniqueThings[idx];
+                }
+                idx++;
+                p*=BigInt(2);
+                floorCopy/=BigInt(2);
+            }
+        }
+        function Got()
+        {
+            const inputFloor=dInput.value.trim();
+            if(inputFloor&&/^\d+$/.test(inputFloor))
+            {
+                Floor=BigInt(inputFloor);
+                Upd();
+            }
+        }
+        function To3()
+        {
+            Floor=Floor/BigInt(998244350)*BigInt(998244350)+BigInt(3);
+            Upd();
+        }
+    </script>
+</body>
+</html>
