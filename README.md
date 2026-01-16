@@ -1,35 +1,22 @@
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-<style>
-      body
-      {
-          font-family:"Cascadia Mono",sans-serif;
-          background-color:black;
-          color:limegreen;
-      }
-      h1
-      {
-          text-align:center;
-          font-family:"Poppins","Cascadia Mono",sans-serif;
-          background-color:black;
-      }
-      h2{color:lightgreen;}
-      img
-      {
-        height:auto;
-        max-width:100%;
-        border:2px solid skyblue;
-      }
-</style>
 # ruililcu.github.io
-my website
-## Collapscension:An incremental game!
-<a href="https://ruililcu.github.io/Collapscension/">Play</a>
-Screenshot!(maybe not on scale)
+My website! | Focus on **H5/JavaScript mini games** & Frontend small tools.  
+All projects are developed with vanilla JS/HTML5/CSS3.
+## Projects!
+### Collapscension
+> An incremental/clicker H5 game with core collapse & numerical growth mechanics
+- **Tech Stack**: HTML5 + CSS3 + Vanilla JavaScript (no frameworks)
+- [Play Now](https://ruililcu.github.io/Collapscension/)
+- Screenshot
 <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/c7b3c9cd-cb97-4475-8fcd-94eca9ff9964" />
-## Stock Simu
-(Only a simu,Be cautious when investing in real stocks!)
-<a href="https://ruililcu.github.io/stock.html">Play</a>
-Screenshot
-<img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/c4037a7c-c0f4-41de-b743-ef83cc4b3adc" />
+
+### Stone Stock Simu
+> A lightweight stock trading simulator — only for **frontend technical practice**
+> **[!!]CRITICAL WARNING**
+> This is just a demo with no real trading logic! Be extremely cautious when investing in real stocks/markets.
+- **Tech Stack**: HTML5 + CSS3 + Vanilla JavaScript
+- [Play Now](https://ruililcu.github.io/stock.html)
+- Screenshot
+<img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/c7b3c9cd-cb97-4475-8fcd-94eca9ff9964" />
+
+## Contact
+Feel free to check my GitHub repos for more details!
