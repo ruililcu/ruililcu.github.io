@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <title>Stock</title>
+    <style>
+        body{font-family:"Comic Sans MS",sans-serif;background-color:black;color:limegreen;display:flex;min-height:100vh;}
+        h1{text-align:center;background-color:black;}
+        button{width:150px;height:70px;border:none;border-radius:4px;color:navy;background-color:darkgray;transition:all 0.4s ease;}
+        button:hover{filter:brightness(0.8);transform:scale(1.2);}
+        button:active{filter:brightness(1.1);transform:scale(0.9);}
+        .eventLog{margin:10px 0;padding:10px;border:1px solid blueviolet;height:80px;overflow-y:scroll;font-size:25px;}
+        .players{margin:10px 0;font-size:25px;color:teal}
+        .onleft,.onright{width:50%;padding:15px;box-sizing:border-box;}
+        .onright{border-left:2px solid #eef;}
+    </style>
+</head>
+<body>
+    <div class="onleft">
+        <h1 id="0">股票模拟</h1>
+        <h2 id="1">你有100.00硬币</h2>
+        <p id="2">股价:10.00硬币</p>
+        <p id="3"></p>
+        <canvas id="4" width="400" height="300"></canvas>
+        <br>
+        <button onclick="buy()" style="background-color:lightcoral">买一个</button>
+        <button onclick="sell()" style="background-color:aquamarine;">卖一个</button>
+    </div>
+    <div class="onright">
+        <div id="5"class="eventLog"></div>
+        <div id="6"class="players"></div>
+    </div>
+    <script>
+        let money=100,stock=10,instock=0,stocks=[10],tickes=0;
+        const _pt0=document.getElementById(0),pt1=document.getElementById(1),pt2=document.getElementById(2),
+              pt3=document.getElementById(3),pt4=document.getElementById(4),ctx=pt4.getContext("2d");
+        const eventLog=document.getElementById("5"),playersEl=document.getElementById("6");
+        const virtualPlayers=[
+        {name:"Alice",funds:150,stocks:0,aggressiveness:0.7},
+        {name:"Bob",funds:200,stocks:1,aggressiveness:0.4},
+        {name:"用户003",funds:180,stocks:0,aggressiveness:0.9},
+        {name:"stonelee1复制品",funds:100,stocks:0,aggressiveness:0.5},
+        {name:"stonelee2复制品",funds:100,stocks:0,aggressiveness:0.5},
+        {name:"stonelee3复制品",funds:100,stocks:0,aggressiveness:0.5},
+        {name:"steve",funds:10000,stocks:100,aggressiveness:0.1},
+        {name:"小明",funds:280,stocks:3,aggressiveness:0.82}, 
+        {name:"一二三四五六七",funds:95,stocks:2,aggressiveness:0.25},  
+        {name:"高桥",funds:55,stocks:7,aggressiveness:0.6},    
+        {name:"copier_of_johnny01",funds:120,stocks:0,aggressiveness:0.48},
+        {name:"Zoe/Isabella",funds:70,stocks:5,aggressiveness:0.95},     
+        {name:"管理员(玩笑)",funds:160,stocks:1,aggressiveness:0.33},  
+        {name:"Luna",funds:320,stocks:4,aggressiveness:0.75},    
+        {name:"Arthur",funds:880,stocks:9,aggressiveness:0.55},   
+        {name:"用户42(???)",funds:4242.42,stocks:42,aggressiveness:0.42}, 
+        {name:"amy99复制品",funds:130,stocks:2,aggressiveness:0.45},
+        {name:"随机1",funds:100,stocks:0,aggressiveness:Math.random()},
+        {name:"随机2",funds:100,stocks:0,aggressiveness:Math.random()},
+        {name:"随机3",funds:100,stocks:0,aggressiveness:Math.random()},
+        {name:"随机4",funds:100,stocks:0,aggressiveness:Math.random()},
+        {name:"随机5",funds:100,stocks:0,aggressiveness:Math.random()},
+        {name:"随机6",funds:100,stocks:0,aggressiveness:Math.random()},
+        {name:"随机7",funds:100,stocks:0,aggressiveness:Math.random()},
+        {name:"随机8",funds:100,stocks:0,aggressiveness:Math.random()}
+    ];
+        const randomEvents=[
+            {desc:"好:科技股涨",impact:1.15,prob:0.05},
+            {desc:"坏:股票速跌",impact:0.85,prob:0.05},
+            {desc:"坏:股票因公司暴跌",impact:0.7,prob:0.03},
+            {desc:"好消息:价格大跳",impact:1.2,prob:0.04},
+            {desc:"坏:全球危机",impact:0.9,prob:0.06},
+            {desc:"股票提升",impact:1.18,prob:0.04},
+            {desc:"通胀->股票下跌",impact:0.88,prob:0.05},
+            {desc:"新产品终于发布",impact:1.12,prob:0.05},
+            {desc:"行业颠覆",impact:0.8,prob:0.03},
+            {desc:"平淡...",impact:1.0,prob:0.5}
+        ];
+
+        function updt(){
+            if(stocks.length>500)stocks.shift();
+            pt1.textContent=`你有${money.toFixed(2)}硬币`;
+            pt2.textContent=`股价${stock.toFixed(2)}硬币`;
+            pt3.textContent=`你有${instock.toFixed(2)}股票|股值:${(stock*instock).toFixed(2)}硬币`;
+            updatePlayerDisplay();
+            graphics();
+        }
+        function updatePlayerDisplay(){
+            let html="";
+            virtualPlayers.slice(0,15).forEach(p=>{
+                html+=`${p.name}:${p.funds.toFixed(2)}硬币| ${p.stocks} 股<br>`;
+            });
+            html+="...折叠..."
+            playersEl.innerHTML=html;
+        }
+        function triggerRandomEvent(){
+            const rand=Math.random();
+            let cumulative=0;
+            for(const evt of randomEvents){
+                cumulative+=evt.prob;
+                if(rand<=cumulative){
+                    stock*=evt.impact;
+                    addEventLog(evt.desc + ` (股价${stock.toFixed(2)})`);
+                    break;
+                }
+            }
+        }
+        function virtualPlayerActions(){
+            virtualPlayers.forEach(player=>{
+                const rand=Math.random();
+                const actionProb=rand*player.aggressiveness;
+                if(actionProb>0.7 && player.funds>=stock){
+                    const buyQty=Math.floor(Math.random()*5)+1;
+                    if(player.funds>=stock*buyQty){
+                        player.funds-=stock*buyQty;
+                        player.stocks+=buyQty;
+                        addEventLog(`${player.name}买${buyQty}股(Price: ${stock.toFixed(2)})`);
+                        stock*=(1 + (buyQty*0.01*player.aggressiveness));
+                    }
+                }
+                if(actionProb<0.3 && player.stocks>0){
+                    const sellQty=Math.floor(Math.random()*player.stocks)+1;
+                    player.funds+=stock*sellQty;
+                    player.stocks-=sellQty;
+                    addEventLog(`${player.name}卖${sellQty}股 (Price: ${stock.toFixed(2)})`);
+                    stock*=(1 - (sellQty*0.01*player.aggressiveness));
+                }
+            });
+        }
+        function addEventLog(text){
+            const timeStr=`[${tickes}时刻]`;
+            eventLog.innerHTML=`${timeStr} ${text}<br>`+eventLog.innerHTML;
+            const lines=eventLog.innerHTML.split('<br>');
+            if(lines.length>6)eventLog.innerHTML=lines.slice(0,6).join('<br>');
+        }
+        function tick(){
+            if(Math.random()>0.5)stock*=(Math.random()/25)+1;
+            else stock/=(Math.random()/25)+1;
+            if(Math.random()<0.01)triggerRandomEvent();
+            if(Math.random()<0.015)virtualPlayerActions();
+            tickes++;
+            stocks.push(stock);
+            updt();
+        }
+
+        function buy(){
+            if(money>stock){
+                money-=stock;
+                instock++;
+                updt();
+            }
+        }
+
+        function sell(){
+            if(instock>0){
+                money+=stock;
+                instock--;
+                updt();
+            }
+        }
+
+        function boxmuller(){return Math.sqrt(-2*Math.log(Math.random()))*Math.cos(2*Math.PI*Math.random());}
+
+        function graphics(){
+            const maxPrice=Math.max(...stocks);
+            const minPrice=Math.min(...stocks);
+            const range=maxPrice-minPrice||1; 
+            ctx.clearRect(0,0,pt4.width,pt4.height);
+            ctx.beginPath();
+            ctx.moveTo(0,250-(stocks[0]-minPrice)/range*200);
+            for(let i=1;i<stocks.length;i++)
+                ctx.lineTo(400*i/stocks.length,250-(stocks[i]-minPrice)/range*200);
+            ctx.strokeStyle=stock>12?'green':stock<8?'red':'lemonchiffon';
+            ctx.lineWidth=2;
+            ctx.stroke();
+        }
+
+        let hue=123;
+        setInterval(()=>{hue+=0.5;hue%=360;_pt0.style.color=`hsl(${hue},75%,40%)`;},20);
+        setInterval(tick,20); 
+        updt();
+    </script>
+</body>
+</html>
