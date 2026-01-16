@@ -1,22 +1,67 @@
-# ruililcu.github.io
-My website! | Focus on **H5/JavaScript mini games** & Frontend small tools.  
-All projects are developed with vanilla JS/HTML5/CSS3.
-## Projects!
-### Collapscension-V0.5
-> An incremental/clicker H5 game with core collapse & numerical growth mechanics
-- **Tech Stack**: HTML5 + CSS3 + Vanilla JavaScript (no frameworks)
-- [Play Now](https://ruililcu.github.io/Collapscension/)
-- Screenshot
-<img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/c7b3c9cd-cb97-4475-8fcd-94eca9ff9964" />
-
-### Stone Stock Simu
-> A lightweight stock trading simulator—only for **fun and learning code:D**
-> **[!!]CRITICAL WARNING**
-> This is just a demo with no real trading logic! Be extremely cautious when investing in real stocks/markets.
-- **Tech Stack**: HTML5 + CSS3 + Vanilla JavaScript
-- [Play Now](https://ruililcu.github.io/stock.html)
-- Screenshot
-<img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/c7b3c9cd-cb97-4475-8fcd-94eca9ff9964" />
-
-## Contact
-Feel free to check my GitHub repos for more details!
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ruililcu's Dev Page</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {margin: 0; padding: 0; box-sizing: border-box;}
+        body {
+            font-family: "Cascadia Mono", sans-serif;
+            background-color: #000;
+            color: limegreen;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        h1 {
+            text-align: center;
+            font-family: "Poppins", "Cascadia Mono", sans-serif;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+        }
+        h2 {
+            color: lightgreen;
+            margin: 2rem 0 1rem;
+            font-size: 1.8rem;
+        }
+        a {
+            background-color:aquamarine;
+            color:white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.2rem;
+            display: inline-block;
+            margin: 1rem 0;
+        }
+        a:hover {text-decoration: underline;}
+        .project-desc {margin: 0.5rem 0; color: #90ee90;}
+        .warning {color: #ff6347; font-weight: 600; margin: 0.5rem 0;}
+        img
+      {
+            max-width: 100%;
+            height:auto; 
+            border:1px solid limegreen;
+            margin:1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>ruililcu.github.io</h1>
+    <p>My personal development website — H5 Games & Frontend Tools</p>
+    <h2>Collapscension: An incremental game!</h2>
+    <p class="project-desc">A native JS incremental game with Beta</p>
+    <a href="https://ruililcu.github.io/Collapscension/" target="_blank">Play Now</a>
+    <p>Screenshot (responsive preview)</p>
+    <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/c7b3c9cd-cb97-4475-8fcd-94eca9ff9964" />
+    <h2>Stock Simu</h2>
+    <p class="warning">Only a simulation! Be cautious when investing in real stocks!</p>
+    <p class="project-desc">A simple stock trading simulator for frontend practice</p>
+    <a href="https://ruililcu.github.io/stock.html" target="_blank">Play Now</a>
+    <p>Screenshot</p>
+    <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/c4037a7c-c0f4-41de-b743-ef83cc4b3adc" />
+</body>
+</html>
