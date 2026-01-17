@@ -29,11 +29,11 @@
         }
         a {
             background-color:skyblue;
-            color:white;
+            color:limegreen;
             text-decoration: none;
             font-weight: 600;
             font-size: 1.2rem;
-            padding:2px
+            padding:2px;
             display: inline-block;
             margin: 1rem 0;
             transition:all 0.4s ease;
@@ -49,28 +49,67 @@
             border:1px solid limegreen;
             margin:1rem 0;
         }
+        .tab-link
+        {
+            font-family:"Poppins","Cascadia Mono",sans-serif;
+            padding:10px 20px;
+            background-color:ivory;;
+            text-decoration:none;
+            color:black;
+        }
+        .tab-content
+        {
+            display:none;
+        }
+        .tab-content:target
+        {
+            display:block;
+        }
     </style>
 </head>
 <body>
-    <h1>ruililcu.github.io</h1>
-    <a href="https://ruililcu.github.io/cn.html">切换到中文</a>
-    <p>My personal development website — H5 Games & Frontend Tools</p>
-    <h2>Collapscension: An incremental game!</h2>
-    <p class="project-desc">A JS incremental idle game with break_eternity.js(from Patashu)</p>
-    <a href="https://ruililcu.github.io/Collapscension/" target="_blank">Play Now</a>
-    <p>Screenshot (responsive preview)</p>
-    <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/c7b3c9cd-cb97-4475-8fcd-94eca9ff9964" />
-    <h2>Stock Simu</h2>
-    <p class="warning">Only a simulation! Be cautious when investing in real stocks!</p>
-    <p class="project-desc">A simple stock trading simulator</p>
-    <a href="https://ruililcu.github.io/stock.html" target="_blank">Play Now</a>
-    <p>Screenshot</p>
-    <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/c4037a7c-c0f4-41de-b743-ef83cc4b3adc" />
-    <h2>THE INFINITY HOTEL</h2>
-    <p class="project-desc">An infinite hotel,all the floors are unique</p>
-    <a href="https://ruililcu.github.io/hot.html" target="_blank">Play Now</a>
-    <p>Screenshot</p>
-    <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/5054a747-ad86-4231-8c91-ab61945b76a0" />
-
+    </noscript>
+    <div>
+        <a id="12"href="#p12" class="tab-link">Switch to Eiglish</a>
+        <a id="13"href="#p13" class="tab-link" style="background-color:crimson;display:none;">切换中文</a>
+    </div><br>
+    <div id="p12" class="tab-content">
+        <h1>ruililcu.github.io</h1>
+        <p>My personal development website — H5 Games & Frontend Tools</p>
+        <h2>Collapscension: An incremental game!</h2>
+        <p class="project-desc">A JS incremental idle game with break_eternity.js(from Patashu)</p>
+        <a href="https://ruililcu.github.io/Collapscension/" target="_blank">Play Now</a>
+        <p>Screenshot (responsive preview)</p>
+        <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/c7b3c9cd-cb97-4475-8fcd-94eca9ff9964" />
+        <h2>Stock Simu</h2>
+        <p class="warning">Only a simulation! Be cautious when investing in real stocks!</p>
+        <p class="project-desc">A simple stock trading simulator</p>
+        <a href="https://ruililcu.github.io/stock.html" target="_blank">Play Now</a>
+        <p>Screenshot</p>
+        <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/c4037a7c-c0f4-41de-b743-ef83cc4b3adc" />
+        <h2>THE INFINITY HOTEL</h2>
+        <p class="project-desc">An infinite hotel,all the floors are unique</p>
+        <a href="https://ruililcu.github.io/hot.html" target="_blank">Play Now</a>
+        <p>Screenshot</p>
+        <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/5054a747-ad86-4231-8c91-ab61945b76a0" />
+    </div>
+        <div id="p12" class="tab-content">
+        # 这里也有中文
+        <a href="https://ruililcu.github.io/cn.html">切换到中文(旧)</a>
+        <p>我的个人网站(游戏+工具)</p>
+        <h2>坍缩飞升:一个增量游戏!</h2>
+        <p class="project-desc">目前是Beta</p>
+        <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/c7b3c9cd-cb97-4475-8fcd-94eca9ff9964" />
+        <a href="https://ruililcu.github.io/Collapscension/" target="_blank">游玩</a>
+        <h2>股票模拟</h2>
+        <p class="warning">实盘炒股有风险,实盘投资需谨慎</p>
+        <p class="project-desc">一个简单的股票模拟</p>
+        <a href="https://ruililcu.github.io/cnprog/stock.html" target="_blank">游玩</a>
+            <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/06dbd022-9122-45b9-bcdd-b9f4b4c81cc8" />
+        <h2>无限酒店</h2>
+        <p class="project-desc">所有楼层均为独特!</p>
+            <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/03e28310-76e6-4728-ad66-a03b636775a0" />
+        <a href="https://ruililcu.github.io/cnprog/hot.html" target="_blank">游玩</a>
+    </div>
 </body>
 </html>
