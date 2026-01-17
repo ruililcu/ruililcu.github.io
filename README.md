@@ -70,15 +70,11 @@
 <body>
     <h1>ruililcu.github.io</h1>
     <h2>Choose a Language!选择语言!</h2>
-    <div>
-        <a id="12"href="#p12" class="tab-link">Switch to English</a>
-        <a id="13"href="#p13" class="tab-link" style="background-color:crimson;">切换中文</a>
-    </div>
-    <br>
-    if lang-buttons not apprear,enter #p12 on this website to English
-    如果语言按钮未出现,在网址后输入#p13切换至中文
+    <p>Enter:p12 after the URL to English</p>
+    <p>在网址后输入:p13切换中文</p>
+    <br><br>
     <div id="p12" class="tab-content">
-        <p>My personal development website — H5 Games & Frontend Tools</p>
+        <h2>My personal development website — H5 Games & Frontend Tools</h2>
         <h2>Collapscension: An incremental game!</h2>
         <p class="project-desc">A JS incremental idle game with break_eternity.js(from Patashu)</p>
         <a href="https://ruililcu.github.io/Collapscension/" target="_blank">Play Now</a>
@@ -99,7 +95,7 @@
         <div id="p13" class="tab-content">
         # 这里也有中文
         <a href="https://ruililcu.github.io/cn.html">切换到中文(旧)</a>
-        <p>我的个人网站(游戏+工具)</p>
+        <h2>我的个人网站(游戏+工具)</h2>
         <h2>坍缩飞升:一个增量游戏!</h2>
         <p class="project-desc">目前是Beta</p>
         <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/c7b3c9cd-cb97-4475-8fcd-94eca9ff9964" />
