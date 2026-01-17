@@ -28,12 +28,12 @@
             font-size: 1.8rem;
         }
         a {
-            background-color:aquamarine;
-            color:navy;
+            background-color:skyblue;
+            color:white;
             text-decoration: none;
             font-weight: 600;
             font-size: 1.2rem;
-            border-radius:2px;
+            padding:2px
             display: inline-block;
             margin: 1rem 0;
             transition:all 0.4s ease;
