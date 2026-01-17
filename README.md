@@ -70,8 +70,8 @@
 <body>
     <h1>ruililcu.github.io</h1>
     <h2>Choose a Language!选择语言!</h2>
-    <p>Enter:p12 after the URL to English</p>
-    <p>在网址后输入:p13切换中文</p>
+    <a href="https://ruililcu.github.io/#p12">English</a>
+    <a href="https://ruililcu.github.io/#p13">中文</a>
     <br><br>
     <div id="p12" class="tab-content">
         <h2>My personal development website — H5 Games & Frontend Tools</h2>
