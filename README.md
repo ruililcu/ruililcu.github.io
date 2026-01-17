@@ -70,7 +70,7 @@
 <body>
     </noscript>
     <div>
-        <a id="12"href="#p12" class="tab-link">Switch to Eiglish</a>
+        <a id="12"href="#p12" class="tab-link">Switch to English</a>
         <a id="13"href="#p13" class="tab-link" style="background-color:crimson;display:none;">切换中文</a>
     </div><br>
     <div id="p12" class="tab-content">
