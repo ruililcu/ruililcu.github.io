@@ -9,7 +9,7 @@
     <style>
         * {margin: 0; padding: 0; box-sizing: border-box;}
         body {
-            font-family: "Cascadia Mono", sans-serif;
+            font-family: "Consolas", "Poppins","Cascadia Mono", sans-serif;
             background-color: #000;
             color: limegreen;
             max-width: 1200px;
@@ -56,7 +56,7 @@
     <a href="https://ruililcu.github.io/cn.html">切换到中文</a>
     <p>My personal development website — H5 Games & Frontend Tools</p>
     <h2>Collapscension: An incremental game!</h2>
-    <p class="project-desc">A native JS incremental game with Beta</p>
+    <p class="project-desc">A JS incremental idle game with break_eternity.js(from Patashu)</p>
     <a href="https://ruililcu.github.io/Collapscension/" target="_blank">Play Now</a>
     <p>Screenshot (responsive preview)</p>
     <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/c7b3c9cd-cb97-4475-8fcd-94eca9ff9964" />
