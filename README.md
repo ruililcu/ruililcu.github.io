@@ -29,7 +29,7 @@
         }
         a {
             background-color:skyblue;
-            color:limegreen;
+            color:darkgreen;
             text-decoration: none;
             font-weight: 600;
             font-size: 1.2rem;
@@ -40,8 +40,8 @@
         }
         a:hover {transform:scale(1.2);}
         a:active {transform:scale(1.2);}
-        .project-desc {margin: 0.5rem 0; color: #90ee90;}
-        .warning {color: #ff6347; font-weight: 600; margin: 0.5rem 0;}
+        .project-desc {margin: 0.5rem 0; color: #45c9f9;}
+        .warning {color: #ff5100; font-weight: 600; margin: 0.5rem 0;}
         img
       {
             max-width: 100%;
@@ -53,7 +53,7 @@
         {
             font-family:"Poppins","Cascadia Mono",sans-serif;
             padding:10px 20px;
-            background-color:ivory;;
+            background-color:ivory;
             text-decoration:none;
             color:black;
         }
@@ -69,12 +69,13 @@
 </head>
 <body>
     </noscript>
+    <h1>ruililcu.github.io</h1>
+    <h2>Choose a Language!选择语言!</h2>
     <div>
         <a id="12"href="#p12" class="tab-link">Switch to English</a>
-        <a id="13"href="#p13" class="tab-link" style="background-color:crimson;display:none;">切换中文</a>
+        <a id="13"href="#p13" class="tab-link" style="background-color:crimson;">切换中文</a>
     </div><br>
     <div id="p12" class="tab-content">
-        <h1>ruililcu.github.io</h1>
         <p>My personal development website — H5 Games & Frontend Tools</p>
         <h2>Collapscension: An incremental game!</h2>
         <p class="project-desc">A JS incremental idle game with break_eternity.js(from Patashu)</p>
@@ -93,7 +94,7 @@
         <p>Screenshot</p>
         <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/5054a747-ad86-4231-8c91-ab61945b76a0" />
     </div>
-        <div id="p12" class="tab-content">
+        <div id="p13" class="tab-content">
         # 这里也有中文
         <a href="https://ruililcu.github.io/cn.html">切换到中文(旧)</a>
         <p>我的个人网站(游戏+工具)</p>
