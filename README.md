@@ -109,6 +109,10 @@
         <p class="project-desc">所有楼层均为独特!</p>
             <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/03e28310-76e6-4728-ad66-a03b636775a0" />
         <a href="https://ruililcu.github.io/cnprog/hot.html" target="_blank">游玩</a>
+        <h2>金币点击器 - 增量游戏</h2>
+        <p class="project-desc">点击金币，升级你的能力，变得富有！</p>
+        <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/9b2d810b-37aa-4b14-a1b8-789586dd05dd" />
+        <a href="https://ruililcu.github.io/cnprog/coinClicker.html" target="_blank">游玩</a>
     </div>
 </body>
 </html>
