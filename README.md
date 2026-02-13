@@ -109,7 +109,7 @@
         <h2>金币攀升 - 增量游戏</h2>
         <p class="project-desc">点击金币，升级你的能力，变得富有！</p>
         暂无截图，不过真的很好玩！
-        <a href="https://ruililcu.github.io/cnprog" target="_blank">游玩</a
+        <a href="https://ruililcu.github.io/cnprog" target="_blank">游玩</a>
         <h2>ruililcu的酒店</h2>
         <p class="project-desc">所有楼层均为独特!</p>
             <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/03e28310-76e6-4728-ad66-a03b636775a0" />>
