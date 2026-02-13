@@ -105,14 +105,14 @@
         <p class="project-desc">一个简单的股票模拟</p>
         <a href="https://ruililcu.github.io/cnprog/stock.html" target="_blank">游玩</a>
             <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/06dbd022-9122-45b9-bcdd-b9f4b4c81cc8" />
+        <a href="https://ruililcu.github.io/cnprog/hot.html" target="_blank">游玩</a>
+        <h2>金币攀升 - 增量游戏</h2>
+        <p class="project-desc">点击金币，升级你的能力，变得富有！</p>
+        暂无截图，不过真的很好玩！
+        <a href="https://ruililcu.github.io/cnprog" target="_blank">游玩</a
         <h2>ruililcu的酒店</h2>
         <p class="project-desc">所有楼层均为独特!</p>
-            <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/03e28310-76e6-4728-ad66-a03b636775a0" />
-        <a href="https://ruililcu.github.io/cnprog/hot.html" target="_blank">游玩</a>
-        <h2>金币点击器 - 增量游戏</h2>
-        <p class="project-desc">点击金币，升级你的能力，变得富有！</p>
-        <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/9b2d810b-37aa-4b14-a1b8-789586dd05dd" />
-        <a href="https://ruililcu.github.io/cnprog/coinClicker.html" target="_blank">游玩</a>
+            <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/03e28310-76e6-4728-ad66-a03b636775a0" />>
     </div>
 </body>
 </html>
