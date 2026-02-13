@@ -1,1 +1,734 @@
-<meta http-equiv="refresh" content="0; url=https://ruililcu.github.io/#p13">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金币攀升 - 增量游戏</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            light: '#FFD700',
+                            DEFAULT: '#FFC107',
+                            dark: '#FFA000',
+                        },
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        dark: '#1E293B',
+                    },
+                    fontFamily: {
+                        game: ['Poppins', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .gold-gradient {
+                background: linear-gradient(135deg, #FFD700 0%, #FFA000 100%);
+            }
+            .btn-hover {
+                transition: all 0.2s ease;
+            }
+            .btn-hover:hover {
+                transform: translateY(-2px);
+            }
+            .btn-hover:active {
+                transform: translateY(0);
+            }
+            .gold-shine {
+                position: relative;
+                overflow: hidden;
+            }
+            .gold-shine::after {
+                content: '';
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: linear-gradient(
+                    to right,
+                    rgba(255,255,255,0) 0%,
+                    rgba(255,255,255,0.3) 50%,
+                    rgba(255,255,255,0) 100%
+                );
+                transform: rotate(30deg);
+                animation: shine 5s infinite;
+            }
+            @keyframes shine {
+                0% {transform: translateX(-100%) rotate(30deg);}
+                20% {transform: translateX(100%) rotate(30deg);}
+                100% {transform: translateX(100%) rotate(30deg);}
+            }
+            .upgrade-badge {
+                position: absolute;
+                top: -8px;
+                right: -8px;
+                background-color: #EF4444;
+                color: white;
+                border-radius: 50%;
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: bold;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-game min-h-screen flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-dark text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-gamepad text-2xl text-gold"></i>
+                <h1 class="text-xl font-bold">金币攀升</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center">
+                    <i class="fa fa-coins text-gold text-xl"></i>
+                    <span id="total-coins" class="ml-1 font-bold text-lg">0</span>
+                </div>
+                <div class="hidden md:flex items-center">
+                    <i class="fa fa-bolt text-secondary"></i>
+                    <span id="coins-per-second" class="ml-1">0.0</span>
+                    <span class="ml-1">/秒</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容 -->
+    <main class="flex-grow container mx-auto px-4 py-6 flex flex-col md:flex-row gap-6">
+        <!-- 左侧游戏区域 -->
+        <div class="w-full md:w-2/3 flex flex-col items-center">
+            <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mb-6">
+                <div class="text-center mb-4">
+                    <h2 class="text-2xl font-bold text-dark">点击金币!</h2>
+                    <p class="text-gray-600">每次点击获得金币</p>
+                </div>
+                <div class="flex justify-center my-8">
+                    <button id="coin-button" class="gold-gradient rounded-full p-10 shadow-2xl btn-hover gold-shine relative">
+                        <i class="fa fa-coins text-[80px] text-dark"></i>
+                        <span id="click-value" class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-dark text-white px-3 py-1 rounded-full text-sm font-bold">+1</span>
+                    </button>
+                </div>
+                <div class="text-center">
+                    <p id="click-count" class="text-gray-500 text-sm">点击次数: <span>0</span></p>
+                </div>
+            </div>
+
+            <!-- 成就区域 -->
+            <div class="bg-white rounded-xl shadow-lg p-4 w-full">
+                <h2 class="text-xl font-bold text-dark mb-3 flex items-center">
+                    <i class="fa fa-trophy text-gold mr-2"></i>成就
+                </h2>
+                <div id="achievements" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                    <!-- 成就将通过JavaScript动态添加 -->
+                </div>
+            </div>
+
+            <!-- 商店区域 -->
+            <div class="bg-white rounded-xl shadow-lg p-4 w-full mt-6">
+                <h2 class="text-xl font-bold text-dark mb-3 flex items-center">
+                    <i class="fa fa-shopping-cart text-orange-500 mr-2"></i>商店
+                </h2>
+                <div id="shop" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <!-- 商店物品将通过JavaScript动态添加 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧升级区域 -->
+        <div class="w-full md:w-1/3">
+            <div class="bg-white rounded-xl shadow-lg p-4 h-full">
+                <h2 class="text-xl font-bold text-dark mb-4 flex items-center">
+                    <i class="fa fa-rocket text-primary mr-2"></i>升级
+                </h2>
+
+                <!-- 自动点击器 -->
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold">自动点击器</h3>
+                        <span id="auto-clicker-level" class="text-sm bg-gray-100 px-2 py-1 rounded-full">Lv. 0</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div id="auto-clicker-progress" class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <span id="auto-clicker-cps" class="ml-2 text-sm text-gray-600">0.0/s</span>
+                    </div>
+                    <button id="buy-auto-clicker" class="w-full mt-2 bg-primary hover:bg-primary/90 text-white py-2 px-4 rounded-lg transition-all btn-hover">
+                        购买 (成本: <span id="auto-clicker-cost">10</span> 金币)
+                    </button>
+                </div>
+
+                <!-- 点击升级 -->
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold">点击力量</h3>
+                        <span id="click-power-level" class="text-sm bg-gray-100 px-2 py-1 rounded-full">Lv. 1</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div id="click-power-progress" class="bg-secondary h-2.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <span id="click-power-value" class="ml-2 text-sm text-gray-600">+1</span>
+                    </div>
+                    <button id="buy-click-power" class="w-full mt-2 bg-secondary hover:bg-secondary/90 text-white py-2 px-4 rounded-lg transition-all btn-hover">
+                        升级 (成本: <span id="click-power-cost">15</span> 金币)
+                    </button>
+                </div>
+
+                <!-- 批量点击 -->
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold">批量点击</h3>
+                        <span id="multi-click-level" class="text-sm bg-gray-100 px-2 py-1 rounded-full">Lv. 0</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div id="multi-click-progress" class="bg-purple-500 h-2.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <span id="multi-click-value" class="ml-2 text-sm text-gray-600">x1</span>
+                    </div>
+                    <button id="buy-multi-click" class="w-full mt-2 bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-lg transition-all btn-hover">
+                        升级 (成本: <span id="multi-click-cost">20</span> 金币)
+                    </button>
+                </div>
+
+                <!-- 离线收益 -->
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold">离线收益</h3>
+                        <span id="offline-earnings-level" class="text-sm bg-gray-100 px-2 py-1 rounded-full">Lv. 0</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div id="offline-earnings-progress" class="bg-amber-500 h-2.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <span id="offline-earnings-value" class="ml-2 text-sm text-gray-600">0%</span>
+                    </div>
+                    <button id="buy-offline-earnings" class="w-full mt-2 bg-amber-500 hover:bg-amber-600 text-white py-2 px-4 rounded-lg transition-all btn-hover">
+                        升级 (成本: <span id="offline-earnings-cost">50</span> 金币)
+                    </button>
+                </div>
+
+                <!-- 幸运符咒 -->
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold">幸运符咒</h3>
+                        <span id="lucky-charm-level" class="text-sm bg-gray-100 px-2 py-1 rounded-full">Lv. 0</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="flex-1">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div id="lucky-charm-progress" class="bg-pink-500 h-2.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <span id="lucky-charm-probability" class="ml-2 text-sm text-gray-600">0%</span>
+                    </div>
+                    <button id="buy-lucky-charm" class="w-full mt-2 bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded-lg transition-all btn-hover">
+                        升级 (成本: <span id="lucky-charm-cost">30</span> 金币)
+                    </button>
+                </div>
+
+                <!-- 统计信息 -->
+                <div class="mt-8 pt-4 border-t border-gray-200">
+                    <h3 class="font-bold mb-2">统计信息</h3>
+                    <ul class="text-sm space-y-1 text-gray-700">
+                        <li><span class="font-medium">总点击数:</span> <span id="stats-total-clicks">0</span></li>
+                        <li><span class="font-medium">总获得金币:</span> <span id="stats-total-coins">0</span></li>
+                        <li><span class="font-medium">最高金币/秒:</span> <span id="stats-max-cps">0.0</span></li>
+                        <li><span class="font-medium">升级次数:</span> <span id="stats-upgrades">0</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-4 mt-auto">
+        <div class="container mx-auto px-4 text-center text-sm">
+            <p>金币攀升 - 增量游戏：AIGC</p>
+            <p class="text-gray-400 mt-1">点击金币，升级你的能力，变得富有！</p>
+        </div>
+    </footer>
+
+    <!-- 通知提示 -->
+    <div id="notification" class="fixed top-4 right-4 bg-dark text-white px-4 py-2 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 flex items-center">
+        <i class="fa fa-bell mr-2"></i>
+        <span id="notification-message"></span>
+    </div>
+
+    <script>
+        // 游戏状态
+        let gameState = {
+            coins: 0,
+            clickValue: 1,
+            clickCount: 0,
+            autoClickerLevel: 0,
+            autoClickerCost: 10,
+            autoClickerPower: 0.1,
+            clickPowerLevel: 1,
+            clickPowerCost: 15,
+            clickPowerMultiplier: 1,
+            multiClickLevel: 0,
+            multiClickCost: 20,
+            multiClickMultiplier: 1,
+            offlineEarningsLevel: 0,
+            offlineEarningsCost: 50,
+            offlineEarningsMultiplier: 0,
+            luckyCharmLevel: 0,
+            luckyCharmCost: 30,
+            luckyCharmProbability: 0,
+            lastVisit: Date.now(),
+            totalClicks: 0,
+            totalCoins: 0,
+            maxCps: 0,
+            totalUpgrades: 0,
+            achievements: [],
+            shopItems: [
+                { id: 'extra_click_power', name: '额外点击力量', cost: 100, effect: () => {
+                    gameState.clickValue *= 2;
+                    showNotification('购买了额外点击力量！现在每次点击获得双倍金币。');
+                } },
+                { id: 'auto_clicker_boost', name: '自动点击器加速', cost: 200, effect: () => {
+                    gameState.autoClickerPower *= 2;
+                    showNotification('购买了自动点击器加速！现在自动点击器每秒获得双倍金币。');
+                } }
+            ]
+        };
+
+        // DOM元素
+        const coinButton = document.getElementById('coin-button');
+        const totalCoinsElement = document.getElementById('total-coins');
+        const clickValueElement = document.getElementById('click-value');
+        const clickCountElement = document.getElementById('click-count').querySelector('span');
+        const buyAutoClickerButton = document.getElementById('buy-auto-clicker');
+        const autoClickerLevelElement = document.getElementById('auto-clicker-level');
+        const autoClickerCostElement = document.getElementById('auto-clicker-cost');
+        const autoClickerProgressElement = document.getElementById('auto-clicker-progress');
+        const autoClickerCpsElement = document.getElementById('auto-clicker-cps');
+        const buyClickPowerButton = document.getElementById('buy-click-power');
+        const clickPowerLevelElement = document.getElementById('click-power-level');
+        const clickPowerCostElement = document.getElementById('click-power-cost');
+        const clickPowerProgressElement = document.getElementById('click-power-progress');
+        const clickPowerValueElement = document.getElementById('click-power-value');
+        const buyMultiClickButton = document.getElementById('buy-multi-click');
+        const multiClickLevelElement = document.getElementById('multi-click-level');
+        const multiClickCostElement = document.getElementById('multi-click-cost');
+        const multiClickProgressElement = document.getElementById('multi-click-progress');
+        const multiClickValueElement = document.getElementById('multi-click-value');
+        const buyOfflineEarningsButton = document.getElementById('buy-offline-earnings');
+        const offlineEarningsLevelElement = document.getElementById('offline-earnings-level');
+        const offlineEarningsCostElement = document.getElementById('offline-earnings-cost');
+        const offlineEarningsProgressElement = document.getElementById('offline-earnings-progress');
+        const offlineEarningsValueElement = document.getElementById('offline-earnings-value');
+        const coinsPerSecondElement = document.getElementById('coins-per-second');
+        const achievementsElement = document.getElementById('achievements');
+        const notificationElement = document.getElementById('notification');
+        const notificationMessageElement = document.getElementById('notification-message');
+        const statsTotalClicksElement = document.getElementById('stats-total-clicks');
+        const statsTotalCoinsElement = document.getElementById('stats-total-coins');
+        const statsMaxCpsElement = document.getElementById('stats-max-cps');
+        const statsUpgradesElement = document.getElementById('stats-upgrades');
+        const buyLuckyCharmButton = document.getElementById('buy-lucky-charm');
+        const luckyCharmLevelElement = document.getElementById('lucky-charm-level');
+        const luckyCharmCostElement = document.getElementById('lucky-charm-cost');
+        const luckyCharmProgressElement = document.getElementById('lucky-charm-progress');
+        const luckyCharmProbabilityElement = document.getElementById('lucky-charm-probability');
+        const shopElement = document.getElementById('shop');
+
+        // 成就定义
+        const achievements = [
+            { id: 'first_click', name: '第一次点击', description: '点击金币一次', requirement: 1, type: 'click' },
+            { id: 'ten_clicks', name: '点击大师', description: '点击金币十次', requirement: 10, type: 'click' },
+            { id: 'hundred_clicks', name: '点击王者', description: '点击金币一百次', requirement: 100, type: 'click' },
+            { id: 'first_coin', name: '第一个金币', description: '获得1个金币', requirement: 1, type: 'coins' },
+            { id: 'thousand_coins', name: '小富翁', description: '获得1000个金币', requirement: 1000, type: 'coins' },
+            { id: 'first_upgrade', name: '第一次升级', description: '完成第一次升级', requirement: 1, type: 'upgrades' },
+            { id: 'ten_upgrades', name: '升级专家', description: '完成10次升级', requirement: 10, type: 'upgrades' },
+            { id: 'auto_clicker', name: '自动化', description: '购买第一个自动点击器', requirement: 1, type: 'auto_clicker' },
+            { id: 'lucky_master', name: '幸运大师', description: '幸运符咒达到5级', requirement: 5, type: 'lucky_charm' }
+        ];
+
+        // 显示通知
+        function showNotification(message) {
+            notificationMessageElement.textContent = message;
+            notificationElement.classList.remove('translate-x-full');
+            notificationElement.classList.add('translate-x-0');
+
+            setTimeout(() => {
+                notificationElement.classList.remove('translate-x-0');
+                notificationElement.classList.add('translate-x-full');
+            }, 3000);
+        }
+
+        // 保存游戏状态
+        function saveGame() {
+            gameState.lastVisit = Date.now();
+            localStorage.setItem('coinClickerGame', JSON.stringify(gameState));
+        }
+
+        // 加载游戏状态
+        function loadGame() {
+            const savedGame = localStorage.getItem('coinClickerGame');
+            if (savedGame) {
+                try {
+                    const loadedState = JSON.parse(savedGame);
+                    Object.assign(gameState, loadedState);
+
+                    // 计算离线收益
+                    const now = Date.now();
+                    const offlineTime = (now - gameState.lastVisit) / 1000; // 秒
+                    const offlineMultiplier = 1 + (gameState.offlineEarningsLevel * 0.1);
+                    const offlineCoins = Math.floor((gameState.autoClickerLevel * gameState.autoClickerPower) * offlineTime * offlineMultiplier);
+
+                    if (offlineCoins > 0 && gameState.autoClickerLevel > 0) {
+                        gameState.coins += offlineCoins;
+                        gameState.totalCoins += offlineCoins;
+                        showNotification(`离线获得了 ${offlineCoins} 金币！`);
+                    }
+
+                    updateUI();
+                } catch (e) {
+                    console.error('加载游戏失败:', e);
+                }
+            }
+        }
+
+        // 更新UI
+        function updateUI() {
+            // 更新金币和点击值
+            totalCoinsElement.textContent = Math.floor(gameState.coins);
+            clickValueElement.textContent = `+${gameState.clickValue}`;
+            clickCountElement.textContent = gameState.clickCount;
+
+            // 更新自动点击器
+            autoClickerLevelElement.textContent = `Lv. ${gameState.autoClickerLevel}`;
+            autoClickerCostElement.textContent = gameState.autoClickerCost;
+            const autoClickerProgress = (gameState.coins / gameState.autoClickerCost) * 100;
+            autoClickerProgressElement.style.width = `${Math.min(autoClickerProgress, 100)}%`;
+            autoClickerCpsElement.textContent = (gameState.autoClickerLevel * gameState.autoClickerPower).toFixed(1);
+
+            // 更新点击力量
+            clickPowerLevelElement.textContent = `Lv. ${gameState.clickPowerLevel}`;
+            clickPowerCostElement.textContent = gameState.clickPowerCost;
+            const clickPowerProgress = (gameState.coins / gameState.clickPowerCost) * 100;
+            clickPowerProgressElement.style.width = `${Math.min(clickPowerProgress, 100)}%`;
+            clickPowerValueElement.textContent = `+${gameState.clickValue}`;
+
+            // 更新批量点击
+            multiClickLevelElement.textContent = `Lv. ${gameState.multiClickLevel}`;
+            multiClickCostElement.textContent = gameState.multiClickCost;
+            const multiClickProgress = (gameState.coins / gameState.multiClickCost) * 100;
+            multiClickProgressElement.style.width = `${Math.min(multiClickProgress, 100)}%`;
+            multiClickValueElement.textContent = `x${gameState.multiClickMultiplier}`;
+
+            // 更新离线收益
+            offlineEarningsLevelElement.textContent = `Lv. ${gameState.offlineEarningsLevel}`;
+            offlineEarningsCostElement.textContent = gameState.offlineEarningsCost;
+            const offlineEarningsProgress = (gameState.coins / gameState.offlineEarningsCost) * 100;
+            offlineEarningsProgressElement.style.width = `${Math.min(offlineEarningsProgress, 100)}%`;
+            offlineEarningsValueElement.textContent = `${gameState.offlineEarningsLevel * 10}%`;
+
+            // 更新幸运符咒
+            luckyCharmLevelElement.textContent = `Lv. ${gameState.luckyCharmLevel}`;
+            luckyCharmCostElement.textContent = gameState.luckyCharmCost;
+            const luckyCharmProgress = (gameState.coins / gameState.luckyCharmCost) * 100;
+            luckyCharmProgressElement.style.width = `${Math.min(luckyCharmProgress, 100)}%`;
+            luckyCharmProbabilityElement.textContent = `${gameState.luckyCharmLevel * 5}%`;
+
+            // 更新每秒收益
+            const coinsPerSecond = gameState.autoClickerLevel * gameState.autoClickerPower;
+            coinsPerSecondElement.textContent = coinsPerSecond.toFixed(1);
+
+            // 更新统计信息
+            statsTotalClicksElement.textContent = gameState.totalClicks;
+            statsTotalCoinsElement.textContent = gameState.totalCoins;
+            statsMaxCpsElement.textContent = gameState.maxCps.toFixed(1);
+            statsUpgradesElement.textContent = gameState.totalUpgrades;
+
+            // 更新成就
+            updateAchievements();
+
+            // 更新按钮状态
+            updateButtonStates();
+
+            // 更新商店
+            updateShop();
+
+            // 更新最大CPS
+            if (coinsPerSecond > gameState.maxCps) {
+                gameState.maxCps = coinsPerSecond;
+            }
+        }
+
+        // 更新成就显示
+        function updateAchievements() {
+            achievementsElement.innerHTML = '';
+
+            achievements.forEach(achievement => {
+                const achieved = gameState.achievements.includes(achievement.id);
+                let progress = 0;
+
+                switch (achievement.type) {
+                    case 'click':
+                        progress = gameState.clickCount;
+                        break;
+                    case 'coins':
+                        progress = gameState.totalCoins;
+                        break;
+                    case 'upgrades':
+                        progress = gameState.totalUpgrades;
+                        break;
+                    case 'auto_clicker':
+                        progress = gameState.autoClickerLevel;
+                        break;
+                    case 'lucky_charm':
+                        progress = gameState.luckyCharmLevel;
+                        break;
+                    default:
+                        progress = 0;
+                }
+
+                const achievementElement = document.createElement('div');
+                achievementElement.className = `p-2 rounded-lg ${achieved ? 'bg-green-100' : 'bg-gray-100'}`;
+
+                const iconClass = achieved ? 'fa-check-circle text-green-500' : 'fa-circle-o text-gray-400';
+                const progressPercent = Math.min((progress / achievement.requirement) * 100, 100);
+
+                achievementElement.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fa ${iconClass} mr-2"></i>
+                        <div class="flex-1">
+                            <h4 class="font-medium ${achieved ? 'text-green-700' : 'text-gray-700'}">${achievement.name}</h4>
+                            <p class="text-xs text-gray-600">${achievement.description}</p>
+                            <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                <div class="h-1.5 rounded-full ${achieved ? 'bg-green-500' : 'bg-gray-400'}" style="width: ${progressPercent}%"></div>
+                            </div>
+                            <p class="text-xs text-right ${achieved ? 'text-green-700' : 'text-gray-500'}">
+                                ${achieved ? '已完成' : `${progress}/${achievement.requirement}`}
+                            </p>
+                        </div>
+                    </div>
+                `;
+
+                achievementsElement.appendChild(achievementElement);
+
+                // 检查是否解锁新成就
+                if (!achieved && progress >= achievement.requirement) {
+                    gameState.achievements.push(achievement.id);
+                    showNotification(`解锁成就: ${achievement.name}!`);
+                    updateAchievements();
+                }
+            });
+        }
+
+        // 更新按钮状态
+        function updateButtonStates() {
+            buyAutoClickerButton.disabled = gameState.coins < gameState.autoClickerCost;
+            buyAutoClickerButton.classList.toggle('opacity-70', gameState.coins < gameState.autoClickerCost);
+
+            buyClickPowerButton.disabled = gameState.coins < gameState.clickPowerCost;
+            buyClickPowerButton.classList.toggle('opacity-70', gameState.coins < gameState.clickPowerCost);
+
+            buyMultiClickButton.disabled = gameState.coins < gameState.multiClickCost;
+            buyMultiClickButton.classList.toggle('opacity-70', gameState.coins < gameState.multiClickCost);
+
+            buyOfflineEarningsButton.disabled = gameState.coins < gameState.offlineEarningsCost;
+            buyOfflineEarningsButton.classList.toggle('opacity-70', gameState.coins < gameState.offlineEarningsCost);
+
+            buyLuckyCharmButton.disabled = gameState.coins < gameState.luckyCharmCost;
+            buyLuckyCharmButton.classList.toggle('opacity-70', gameState.coins < gameState.luckyCharmCost);
+        }
+
+        // 点击金币
+        function clickCoin() {
+            gameState.clickCount++;
+            gameState.totalClicks++;
+
+            let clickValue = gameState.clickValue * gameState.multiClickMultiplier;
+
+            // 检查幸运符咒
+            if (Math.random() < (gameState.luckyCharmLevel * 0.05)) {
+                clickValue *= 2;
+                showNotification('触发幸运符咒！本次点击获得双倍金币！');
+            }
+
+            gameState.coins += clickValue;
+            gameState.totalCoins += clickValue;
+
+            // 金币点击动画
+            coinButton.classList.add('scale-110');
+            setTimeout(() => {
+                coinButton.classList.remove('scale-110');
+            }, 100);
+
+            updateUI();
+        }
+
+        // 购买自动点击器
+        function buyAutoClicker() {
+            if (gameState.coins >= gameState.autoClickerCost) {
+                gameState.coins -= gameState.autoClickerCost;
+                gameState.autoClickerLevel++;
+                gameState.autoClickerCost = Math.floor(gameState.autoClickerCost * 1.5);
+                gameState.totalUpgrades++;
+
+                showNotification(`购买了自动点击器! 现在每秒获得 ${(gameState.autoClickerLevel * gameState.autoClickerPower).toFixed(1)} 金币`);
+                updateUI();
+                saveGame();
+            }
+        }
+
+        // 升级点击力量
+        function buyClickPower() {
+            if (gameState.coins >= gameState.clickPowerCost) {
+                gameState.coins -= gameState.clickPowerCost;
+                gameState.clickPowerLevel++;
+                gameState.clickValue = Math.floor(gameState.clickValue * 1.3);
+                gameState.clickPowerCost = Math.floor(gameState.clickPowerCost * 1.5);
+                gameState.totalUpgrades++;
+
+                showNotification(`升级了点击力量! 现在每次点击获得 ${gameState.clickValue} 金币`);
+                updateUI();
+                saveGame();
+            }
+        }
+
+        // 升级批量点击
+        function buyMultiClick() {
+            if (gameState.coins >= gameState.multiClickCost) {
+                gameState.coins -= gameState.multiClickCost;
+                gameState.multiClickLevel++;
+                gameState.multiClickMultiplier = Math.floor(1.5 ** gameState.multiClickLevel);
+                gameState.multiClickCost = Math.floor(gameState.multiClickCost * 2);
+                gameState.totalUpgrades++;
+
+                showNotification(`升级了批量点击! 现在每次点击获得 ${gameState.multiClickMultiplier} 倍收益`);
+                updateUI();
+                saveGame();
+            }
+        }
+
+        // 升级离线收益
+        function buyOfflineEarnings() {
+            if (gameState.coins >= gameState.offlineEarningsCost) {
+                gameState.coins -= gameState.offlineEarningsCost;
+                gameState.offlineEarningsLevel++;
+                gameState.offlineEarningsCost = Math.floor(gameState.offlineEarningsCost * 3);
+                gameState.totalUpgrades++;
+
+                showNotification(`升级了离线收益! 现在离线时可获得 ${gameState.offlineEarningsLevel * 10}% 的收益`);
+                updateUI();
+                saveGame();
+            }
+        }
+
+        // 升级幸运符咒
+        function buyLuckyCharm() {
+            if (gameState.coins >= gameState.luckyCharmCost) {
+                gameState.coins -= gameState.luckyCharmCost;
+                gameState.luckyCharmLevel++;
+                gameState.luckyCharmCost = Math.floor(gameState.luckyCharmCost * 2);
+                gameState.totalUpgrades++;
+
+                showNotification(`升级了幸运符咒! 现在获得双倍金币的概率为 ${gameState.luckyCharmLevel * 5}%`);
+                updateUI();
+                saveGame();
+            }
+        }
+
+        // 自动点击器定时器
+        function startAutoClicker() {
+            setInterval(() => {
+                if (gameState.autoClickerLevel > 0) {
+                    const coinsGained = gameState.autoClickerLevel * gameState.autoClickerPower;
+                    gameState.coins += coinsGained;
+                    gameState.totalCoins += coinsGained;
+                    updateUI();
+                }
+            }, 1000);
+        }
+
+        // 自动保存定时器
+        function startAutoSave() {
+            setInterval(() => {
+                saveGame();
+            }, 10000);
+        }
+
+        // 更新商店
+        function updateShop() {
+            shopElement.innerHTML = '';
+
+            gameState.shopItems.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'bg-gray-100 p-2 rounded-lg';
+
+                const button = document.createElement('button');
+                button.className = `w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition-all btn-hover ${gameState.coins < item.cost ? 'opacity-70' : ''}`;
+                button.disabled = gameState.coins < item.cost;
+                button.textContent = `${item.name} (成本: ${item.cost} 金币)`;
+                button.addEventListener('click', () => {
+                    if (gameState.coins >= item.cost) {
+                        gameState.coins -= item.cost;
+                        item.effect();
+                        item.cost *= 10;
+                        updateUI();
+                        saveGame();
+                    }
+                });
+
+                itemElement.appendChild(button);
+                shopElement.appendChild(itemElement);
+            });
+        }
+
+        // 初始化事件监听器
+        function initEventListeners() {
+            coinButton.addEventListener('click', clickCoin);
+            buyAutoClickerButton.addEventListener('click', buyAutoClicker);
+            buyClickPowerButton.addEventListener('click', buyClickPower);
+            buyMultiClickButton.addEventListener('click', buyMultiClick);
+            buyOfflineEarningsButton.addEventListener('click', buyOfflineEarnings);
+            buyLuckyCharmButton.addEventListener('click', buyLuckyCharm);
+
+            // 窗口关闭时保存游戏
+            window.addEventListener('beforeunload', saveGame);
+        }
+
+        // 初始化游戏
+        function initGame() {
+            loadGame();
+            initEventListeners();
+            startAutoClicker();
+            startAutoSave();
+            updateUI();
+        }
+
+        // 启动游戏
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</html>
