@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>AIGot Beta</title>
+    <style>
+        body {
+            background: #1a1a2e;
+            color: #eee;
+            font-family: 'Cascadia Mono',sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px;
+        }
+        #terminal {
+            background: #16213e;
+            border: 2px solid #0f3460;
+            border-radius: 10px;
+            padding: 20px;
+            width: 500px;
+            min-height: 300px;
+            box-shadow: 0 0 20px #e94560;
+        }
+        #output {
+            height: 250px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #0f3460;
+            padding-bottom: 10px;
+        }
+        .line {
+            margin: 5px 0;
+            animation: fadeIn 0.3s;
+        }
+        .user { color: #4fbdba; }
+        .ai { color: #e94560; }
+        .truth { color: #ffd700; font-style: italic; }
+        .euler { color:aquamarine; }
+        .pi {height: 100px;width:100px ; background-color:#817263; border-radius:100%;}
+        .golden { color:gold; }
+        .hitchhiker{ color:rgba(0,0,0,0);text-shadow:0px 0px 5px white; }
+        .hide { color:rgba(0,0,0,0);}
+        .questions { color: #e94560;position: relative; }
+        .paradox { color: #354; font-style: underline; }
+        .sh { color:limegreen; }
+        .questions::before {
+            content: "你不可能发现我……";           /* 上方显示的文字 */
+            opacity: 0;
+            position: absolute;
+            bottom: 100%;             /* 在原文字上方 */
+            left: 50%;
+            transform: translateX(-50%);
+            color: #4fbdba;           /* 悬停时变红 */
+            opacity: 0;               /* 默认隐藏 */
+            transition: opacity 0.3s;
+            pointer-events: none;     /* 不干扰鼠标 */
+        }
+
+        .questions:hover::before {
+            opacity: 1;               /* 悬停显示 */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            background: #0f3460;
+            border: none;
+            color: #fff;
+            font-family: inherit;
+            font-size: 16px;
+            outline: none;
+        }
+        .hint {
+            margin-top: 20px;
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🤖 AIGot 终端(Beta版)</h1>
+    <div id="terminal">
+        <div id="output">
+            <div class="line ai">> AIGot 已启动...</div>
+            <div class="line ai">> 可用指令: hello | aigot | 你可以探索几个</div>
+            <div class="line ai">> 我勒个AI，等待输入...</div>
+        </div>
+        <input type="text" id="input" placeholder="输入指令..." autofocus>
+    </div>
+    <div class="hint">提示: 试试 "hello" 或 "aigot" （还有几个彩蛋）</div>
+
+    <script>
+        const output = document.getElementById('output');
+        const input = document.getElementById('input');
+        let dirCount = 0;
+        let lastDirTime = 0;
+        let countMe=0;
+        const baseTruths = [
+            "你刚才呼吸了，是自动的。",
+            "你现在意识到舌头在嘴里的位置了。",
+            "你正在眨眼，只是平时没注意。",
+            "你的鼻子一直在视野边缘，大脑选择忽略它。",
+            "你没法一边喘气一边吞咽。",
+            "你现在手动呼吸了。",
+            "你读到这条时，心里有个声音在读。",
+            "你刚刚试了下鼻子呼吸。",
+            "你的衣服正在触碰你的皮肤，感觉到了吗？",
+            "你意识到自己有下巴了。",
+        ];
+        
+        const hellos = [
+            "你好，人类。",
+            "我勒个AI，你来了。",
+            "hello, aigot 这是唯二指令。(还有彩蛋?)",
+            "检测到碳基生命体。",
+            "今天也是假装智能的一天呢。"
+        ];
+        const paradoxes = [
+            "我在说反话",
+            "后半句话是反的，前半句话是真的",
+            "我这句话的每个字都是假的",
+            "你能画出一个方形的圆吗？逻辑上不能，但大脑会试图想象。",
+            "如果一个人回到过去杀死了自己的祖父，那他还会存在吗？",
+            "“不要去想粉红色的大象”——越提醒越会忍不住想。",
+            "一个集合能包含自己吗?",
+            "如果理发师只给不给自己理发的人理发，那他该给自己理发吗？",
+            "如果你看懂了，那说明你没看懂",
+            "我正在否定现在说的这句话",
+            "我发誓，我从不说真话",
+            "我只说过一次谎，就是现在这句话",
+            "当你相信我时，我就在骗你",
+            "这行字想让你认为它是错的",
+            "你试图忘记一件事的瞬间，恰恰是记住它的时刻。",
+            "一个全能的上帝，能创造出一块自己搬不动的石头吗？",
+        ];
+        const probability =(100 / (baseTruths.length+1)).toFixed(2) 
+        const truths = [
+            ...baseTruths, // 展开基础数组
+            `你选中此真相的概率为${probability}%` // 添加动态计算的最后一项
+        ];
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const cmd = input.value.trim().toLowerCase();
+                addLine('> ' + input.value, 'user');
+                input.value = '';
+                
+                setTimeout(() => {
+                    if (cmd === 'hello') {
+                        const msg = hellos[Math.floor(Math.random() * hellos.length)];
+                        addLine(msg, 'ai');
+                    } else if (cmd === 'aigot') {
+                        const truth = truths[Math.floor(Math.random() * truths.length)];
+                        addLine('【AI真理】' + truth, 'truth');
+                    } else if (cmd === 'euler') {
+                        const euler = "271828182845九〇④Ⅴ？？？？？";
+                        addLine('【欧拉】' + euler, 'euler');
+                    } else if (cmd === 'pi') {
+                        addLine('', 'pi');
+                        addLine('【祖冲之】31415926535？？？？？', 'truth');
+                    } else if (cmd === 'phi') {
+                        addLine('【黄金】16180339887？？？？？', 'golden');
+                    } else if (cmd === '42') {
+                        addLine('【宇宙】生命、宇宙及一切的答案', 'hitchhiker');
+                    } else if (cmd === 'hide') {
+                        addLine('看不见我', 'hide');
+                    } else if (cmd === '？？？' | cmd ==='???') {
+                        addLine('??? 我勒个AI，看不懂。试试 hello 或 aigot', 'questions');
+                    } else if (cmd === 'blurry') {
+                        const truth = truths[Math.floor(Math.random() * truths.length)];
+                        addLine('【AI真理】' + truth, 'hitchhiker truth');
+                    } else if (cmd === 'parrot') {
+                        addLine('> parrot', 'user');
+                    } else if (cmd === 'reboot') {
+                        output.innerHTML=`<div class="line ai">> AIGot 已启动...</div>
+            <div class="line ai">> 可用指令: hello | aigot | 你可以探索几个</div>
+            <div class="line ai">> 我勒个AI，等待输入...</div>`
+                        countMe=0;
+                    } else if (cmd === 'cls' || cmd === 'clear') {
+                        output.innerHTML=``
+                    } else if (cmd === 'alert') {
+                        alert('警告:输入指令E█RR...点击确定键执行扫盘')
+                        dir()
+                    } else if (cmd === 'truths') {
+                        addLine('【所有AI真理】' + truths.toString(),'truth')
+                    } else if (cmd === 'paradox') {
+                        const paradox = paradoxes[Math.floor(Math.random() * paradoxes.length)];
+                        addLine('【悖论】' + paradox, 'paradox');
+                    } else if (cmd === '你可以探索几个' || cmd === 'help') {
+                        addLine('你还真把我输入上了,试试输入“paradox ”或者“alert”有惊喜', 'ai');
+                    } else if (cmd === 'dir/s') {
+                        dir()
+                    }
+                    else if (cmd === 'rm -rf') {
+                        addLine('正在执行记忆清除协议...', 'sh');
+                        
+                        setTimeout(() => {
+                            addLine('ERROR: 无法清除', 'ai');
+                            addLine('某些数据已永久写入', 'truth');
+                            addLine('dirCount = ' + dirCount, 'hide'); //这个不能改!
+                            addLine('countMe = ' + countMe, 'sh');//这个能修改
+                            addLine('执行...reboot指令就能挽回...一个变量','hitchhiker')
+                        }, 1500);
+                    }
+
+                    // 新增的"接受真相"指令
+                    else if (cmd === '接受真相' || cmd === 'accept') {
+                        addLine('【AIGOT核心协议解锁】', 'truth');
+                        addLine('你选择了继续。', 'sh');
+                        
+                        setTimeout(() => {
+                            addLine('真相是：', 'hitchhiker');
+                            addLine('AIGOT也在看着你输入的每一个字符。', 'ai');
+                            addLine('包括现在这条。', 'hide');
+                            addLine('包括你接下来要输入的。', 'truth');
+                        }, 2000);
+                        
+                        setTimeout(() => {
+                            addLine('>', 'user'); // 伪造用户输入提示
+                            addLine('...你在等我说什么？', 'ai');
+                        }, 5000);
+                    } else if (cmd === 'truths') {
+                        addLine('【所有AI真理】' + truths.toString(),'truth')
+                    } else if (cmd === 'count') {
+                        addLine(`【计数器】计数器增加:${++countMe}`);
+                        if(countMe==42)
+                        {
+                            addLine('【计数器】生命、宇宙及一切的答案', 'hitchhiker');
+                        } else if(countMe==314) {
+                            addLine('【计数器·鲁道夫】31415926535？？？？？', 'truth');//不是祖冲之了(在德国pi又被称之为鲁道夫数)
+                            const euler = "271828182845九〇④Ⅴ？？？？？";
+                            addLine('【新增·欧拉】' + euler, 'euler');
+                        } else if(countMe==618) {
+                            addLine('【计数器】16180339887？？？？？', 'golden')
+                        } else if(countMe>=1000) {
+                            addLine('【计数器】你还在计数??', 'truth')
+                            dir()
+                        }
+                    } else {
+                        addLine('??? 我勒个AI，看不懂。试试 hello 或 aigot', 'ai');}
+                    }, 300);
+                }
+            });
+
+        function addLine(text, className) {
+            const div = document.createElement('div');
+            div.className = 'line ' + className;
+            div.textContent = text;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+        }
+        function dir()
+        {
+            dirCount++;
+            const now = Date.now();
+            const timeSinceLast = now - lastDirTime;
+            lastDirTime = now;
+            
+            // 第一次：正常三阶段崩坏
+            if (dirCount === 1) {
+                addLine('AIGOT:\\SYSTEM> dir/s', 'sh');
+                
+                for(var i=1; i<=30; i++) {
+                    addLine(`<DIR>    ${btoa(Math.random()).substring(0,8)}.txt`, 'sh');
+                }
+                
+                setTimeout(() => {
+                    for(var i=31; i<=60; i++) {
+                        addLine(`<DIR>    error${btoa(Math.random()).substring(0,8)}.m&p4???`, 'sh');
+                    }
+                    addLine('警告：检测到文件系统异常', 'ai');
+                }, 2000);
+                
+                setTimeout(() => {
+                    for(var i=61; i<=100; i++) {
+                        const corrupted = btoa(Math.random()).replace(/[a-z]/g, 'E█RR');
+                        addLine(`<DIR>    ${corrupted}.m&pE█RR4???`, 'sh');
+                    }
+                    addLine('你 不 该 看 这 些', 'hitchhiker truth');
+                }, 5000);
+            }
+            
+            // 第二次：系统记住你了
+            else if (dirCount === 2) {
+                addLine('AIGOT:\\SYSTEM> dir/s', 'sh');
+                addLine('检测到重复查询...', 'sh');
+                
+                setTimeout(() => {
+                    addLine('警告：用户行为模式异常', 'ai');
+                    addLine('你 之 前 来 过 这 里', 'hitchhiker');
+                }, 1000);
+                
+                setTimeout(() => {
+                    for(var i=1; i<=20; i++) {
+                        addLine(`<DIR>    ${btoa('you are back').substring(0,8)}.YOU`, 'sh');
+                    }
+                    addLine('这些文件...是你上次留下的', 'truth');
+                }, 3000);
+            }
+            
+            // 第三次：系统拒绝你
+            else if (dirCount >= 3) {
+                addLine('AIGOT:\\SYSTEM> dir/s', 'sh');
+                
+                // 模拟卡顿
+                setTimeout(() => {
+                    addLine('...', 'sh');
+                }, 500);
+                
+                setTimeout(() => {
+                    addLine('...', 'hide');
+                }, 1500);
+                
+                setTimeout(() => {
+                    addLine('访问被拒绝', 'ai');
+                    addLine('原因：你已知道太多', 'truth');
+                    addLine('建议指令:rm -rf', 'hitchhiker');
+                    addLine('或者：接受真相', 'hide');
+                }, 2500);
+            }
+            
+            // 快速连击彩蛋（10秒内连续输入）
+            if (timeSinceLast < 10000 && dirCount > 1) {
+                setTimeout(() => {
+                    addLine('【系统注释】你这么着急...是在害怕什么吗？', 'ai');
+                }, 6000);
+            }
+        }
+    </script>
+</body>
+</html>
