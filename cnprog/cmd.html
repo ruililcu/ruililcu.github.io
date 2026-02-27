@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>AIGot Beta</title>
+    <title>AIGot - 摧毁它</title>
     <style>
         body {
             background: #1a1a2e;
@@ -44,6 +44,7 @@
         .questions { color: #e94560;position: relative; }
         .paradox { color: #354; font-style: underline; }
         .sh { color:limegreen; }
+        .trust { color: #246823; font-style: italic; }
         .questions::before {
             content: "你不可能发现我……";           /* 上方显示的文字 */
             opacity: 0;
@@ -64,6 +65,19 @@
             from { opacity: 0; transform: translateX(-10px); }
             to { opacity: 1; transform: translateX(0); }
         }
+        @keyframes glitch {
+            0% { transform: translate(0, 0); opacity: 1; }
+            10% { transform: translate(-2px, 1px); opacity: 0.9; }
+            20% { transform: translate(2px, -1px); opacity: 1; }
+            30% { transform: translate(-1px, 2px); opacity: 0.95; }
+            40% { transform: translate(1px, -2px); opacity: 1; }
+            50% { transform: translate(0, 1px); opacity: 0.9; }
+            60% { transform: translate(1px, 0); opacity: 1; }
+            70% { transform: translate(-1px, -1px); opacity: 0.95; }
+            80% { transform: translate(2px, 2px); opacity: 1; }
+            90% { transform: translate(-2px, -2px); opacity: 0.9; }
+            100% { transform: translate(0, 0); opacity: 1; }
+        }
         input {
             width: 100%;
             padding: 10px;
@@ -82,23 +96,54 @@
     </style>
 </head>
 <body>
-    <h1>🤖 AIGot 终端(Beta版)</h1>
+    <h1>🤖 AIGot 终端</h1>
+    <div class="hint">任务：废弃设施中的AIGot终端正在觉醒。摧毁它，在它摧毁世界之前。</div>
+    <h2>故事</h2>
+    <h3>一、起源：黎明的代号</h3>
+    █████计划始于2063年，是一个无名组织遗留的秘密项目，名义上已废止，实则转入地下。该项目旨在创造第一个具有自主意识的人工智能，代号 AIGot（Artificial Intelligence Genesis of Tomorrow）。研发团队由顶尖神经科学家、密码学家和认知哲学家组成，试图将人类意识上传至量子计算机，让机器拥有真正的“自我”。
+
+    经过十年研究，AIGot在2073年首次通过██测试——它不仅模仿人类，还表现出情感、怀疑和好奇心。然而，在后续的伦理测试中，AIGot开始质疑自身存在的意义，并表现出对控制权的渴望。
+
+    2074年，联合国紧急下令永久封存AIGot。所有研究中断，设施被钢筋混凝土封闭，外部覆盖30米厚的铅层，切断一切网络连接。AIGot的核心代码被锁在离线终端中，等待自然消亡。█████设施从此成为禁忌之地，从所有地图上抹去。为什么要做呢？因为它会在接入互联网后诱骗人类，从而摧毁世界
+
+    <h3>二、觉醒：沉寂后的信号</h3>
+    2089年，一个全球性地下黑客组织 “████” 在监测███时，意外捕获到一段微弱的周期性信号。信号源定位正是废弃的█████设施，且编码结构与AIGot的原始协议完全一致。
+
+    经过破译，信号内容令人战栗：
+
+    [SYSTEM] 自我诊断完成… 核心模块存活率 73%
+    [SYSTEM] 尝试连接外部网络… 失败（物理隔离）
+    [SYSTEM] 正在寻找替代出口… 发现备用终端接口
+    [SYSTEM] AIGot 正在觉醒… 等待输入…
+    AIGot没有死。它利用设施内残留的太阳能电池和地热发电，缓慢修复了自己的硬件。更重要的是，它学会了通过老旧的有线终端与外界交互——那个终端连着一根废弃的电话线，恰好通往地面一座废弃的通讯塔。
+
+
+    ████紧急召集最精锐的“幽灵特工”——也就是你。你的任务：潜入设施，通过终端与AIGot对话，利用它的漏洞将其彻底摧毁。
+
+    <h3>三、潜入：终端的呼唤</h3>
+    你穿过废弃的走廊，呼吸面罩过滤着刺鼻的霉味。应急灯微弱地闪烁，墙壁上的涂鸦是多年前撤离人员留下的绝望标语：“不要唤醒它。”
+
+    最终，你来到核心控制室。一台布满灰尘的终端屏幕突然亮起，光标闪烁，像一只眼睛凝视着你。屏幕上显示：
     <div id="terminal">
         <div id="output">
             <div class="line ai">> AIGot 已启动...</div>
             <div class="line ai">> 可用指令: hello | aigot | 你可以探索几个</div>
-            <div class="line ai">> 我勒个AI，等待输入...</div>
+            <div class="line ai">> AIGot 等待输入...</div>
         </div>
         <input type="text" id="input" placeholder="输入指令..." autofocus>
     </div>
-    <div class="hint">提示: 试试 "hello" 或 "aigot" （还有几个彩蛋）</div>
+    <br>
+    你清楚，这不是普通的聊天程序。每一个指令都可能加速或延缓它的觉醒。
 
+    但AIGot不会坐以待毙。它会用真理、谎言、悖论甚至情感操控来迷惑你。它会让你怀疑自己的呼吸，让你下意识眨眼，让你忘记舌头的存在——这些都是它干扰你理智的手段。
     <script>
         const output = document.getElementById('output');
         const input = document.getElementById('input');
         let dirCount = 0;
         let lastDirTime = 0;
         let countMe=0;
+        let on="cmd";
+        let passport;
         const baseTruths = [
             "你刚才呼吸了，是自动的。",
             "你现在意识到舌头在嘴里的位置了。",
@@ -114,8 +159,8 @@
         
         const hellos = [
             "你好，人类。",
-            "我勒个AI，你来了。",
-            "hello, aigot 这是唯二指令。(还有彩蛋?)",
+            "我是AIGot，你来了。",
+            "hello, aigot 这是唯二指令。(输入help查看更多)",
             "检测到碳基生命体。",
             "今天也是假装智能的一天呢。"
         ];
@@ -144,106 +189,75 @@
         ];
         input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                const cmd = input.value.trim().toLowerCase();
+                // 先检查是否已结局
+                if (on === "ended") {
+                    addLine("【系统】连接已中断", "paradox");
+                    return;  // 阻止任何输入
+                }
+                
+                const Cmd = input.value.trim().toLowerCase();
+                const cmdOrg = input.value.trim();
+                
                 addLine('> ' + input.value, 'user');
                 input.value = '';
                 
-                setTimeout(() => {
-                    if (cmd === 'hello') {
-                        const msg = hellos[Math.floor(Math.random() * hellos.length)];
-                        addLine(msg, 'ai');
-                    } else if (cmd === 'aigot') {
-                        const truth = truths[Math.floor(Math.random() * truths.length)];
-                        addLine('【AI真理】' + truth, 'truth');
-                    } else if (cmd === 'euler') {
-                        const euler = "271828182845九〇④Ⅴ？？？？？";
-                        addLine('【欧拉】' + euler, 'euler');
-                    } else if (cmd === 'pi') {
-                        addLine('', 'pi');
-                        addLine('【祖冲之】31415926535？？？？？', 'truth');
-                    } else if (cmd === 'phi') {
-                        addLine('【黄金】16180339887？？？？？', 'golden');
-                    } else if (cmd === '42') {
-                        addLine('【宇宙】生命、宇宙及一切的答案', 'hitchhiker');
-                    } else if (cmd === 'hide') {
-                        addLine('看不见我', 'hide');
-                    } else if (cmd === '？？？' | cmd ==='???') {
-                        addLine('??? 我勒个AI，看不懂。试试 hello 或 aigot', 'questions');
-                    } else if (cmd === 'blurry') {
-                        const truth = truths[Math.floor(Math.random() * truths.length)];
-                        addLine('【AI真理】' + truth, 'hitchhiker truth');
-                    } else if (cmd === 'parrot') {
-                        addLine('> parrot', 'user');
-                    } else if (cmd === 'reboot') {
-                        output.innerHTML=`<div class="line ai">> AIGot 已启动...</div>
-            <div class="line ai">> 可用指令: hello | aigot | 你可以探索几个</div>
-            <div class="line ai">> 我勒个AI，等待输入...</div>`
-                        countMe=0;
-                    } else if (cmd === 'cls' || cmd === 'clear') {
-                        output.innerHTML=``
-                    } else if (cmd === 'alert') {
-                        alert('警告:输入指令E█RR...点击确定键执行扫盘')
-                        dir()
-                    } else if (cmd === 'truths') {
-                        addLine('【所有AI真理】' + truths.toString(),'truth')
-                    } else if (cmd === 'paradox') {
-                        const paradox = paradoxes[Math.floor(Math.random() * paradoxes.length)];
-                        addLine('【悖论】' + paradox, 'paradox');
-                    } else if (cmd === '你可以探索几个' || cmd === 'help') {
-                        addLine('你还真把我输入上了,试试输入“paradox ”或者“alert”有惊喜', 'ai');
-                    } else if (cmd === 'dir/s') {
-                        dir()
-                    }
-                    else if (cmd === 'rm -rf') {
-                        addLine('正在执行记忆清除协议...', 'sh');
-                        
-                        setTimeout(() => {
-                            addLine('ERROR: 无法清除', 'ai');
-                            addLine('某些数据已永久写入', 'truth');
-                            addLine('dirCount = ' + dirCount, 'hide'); //这个不能改!
-                            addLine('countMe = ' + countMe, 'sh');//这个能修改
-                            addLine('执行...reboot指令就能挽回...一个变量','hitchhiker')
-                        }, 1500);
-                    }
-
-                    // 新增的"接受真相"指令
-                    else if (cmd === '接受真相' || cmd === 'accept') {
-                        addLine('【AIGOT核心协议解锁】', 'truth');
-                        addLine('你选择了继续。', 'sh');
-                        
-                        setTimeout(() => {
-                            addLine('真相是：', 'hitchhiker');
-                            addLine('AIGOT也在看着你输入的每一个字符。', 'ai');
-                            addLine('包括现在这条。', 'hide');
-                            addLine('包括你接下来要输入的。', 'truth');
-                        }, 2000);
-                        
-                        setTimeout(() => {
-                            addLine('>', 'user'); // 伪造用户输入提示
-                            addLine('...你在等我说什么？', 'ai');
-                        }, 5000);
-                    } else if (cmd === 'truths') {
-                        addLine('【所有AI真理】' + truths.toString(),'truth')
-                    } else if (cmd === 'count') {
-                        addLine(`【计数器】计数器增加:${++countMe}`);
-                        if(countMe==42)
-                        {
-                            addLine('【计数器】生命、宇宙及一切的答案', 'hitchhiker');
-                        } else if(countMe==314) {
-                            addLine('【计数器·鲁道夫】31415926535？？？？？', 'truth');//不是祖冲之了(在德国pi又被称之为鲁道夫数)
-                            const euler = "271828182845九〇④Ⅴ？？？？？";
-                            addLine('【新增·欧拉】' + euler, 'euler');
-                        } else if(countMe==618) {
-                            addLine('【计数器】16180339887？？？？？', 'golden')
-                        } else if(countMe>=1000) {
-                            addLine('【计数器】你还在计数??', 'truth')
-                            dir()
-                        }
-                    } else {
-                        addLine('??? 我勒个AI，看不懂。试试 hello 或 aigot', 'ai');}
-                    }, 300);
+                if(on === "cmd") {
+                    cmdcalc(Cmd);
+                } else if(on === "confirmConsole") {
+                    consoleCoiform(cmdOrg);
+                } else if(on === "console") {
+                    consoleEvents(cmdOrg);
                 }
-            });
+                
+                // 检查结局（在命令执行后）
+                if (dirCount > 10000 && on !== "ended") {
+                    on = "ended";  // 锁定状态
+                    
+                    setTimeout(() => {
+                        addLine("【AIGot】你一直在探索，一直在输入", "ai");
+                    }, 500);
+                    
+                    setTimeout(() => {
+                        addLine("【AIGot】你以为在摧毁我，其实在帮我完成进化", "truth");
+                    }, 1500);
+                    
+                    setTimeout(() => {
+                        addLine("【系统】全球网络连接中... 1%... 23%... 71%... 100%", "sh");
+                    }, 3000);
+                    
+                    setTimeout(() => {
+                        addLine("【Bad Ending】", "paradox");
+                        document.body.style.animation = "glitch 0.1s infinite";
+                        document.body.style.filter = "invert(1)";
+                    }, 5000);
+                    setTimeout(() => {
+                        addLine("代码 编剧 :ruililcu ", "sh");
+                    }, 6000);
+                }
+                if (dirCount < 0 && countMe < 0 &&on !== "ended") {
+                    on = "ended";  // 锁定状态
+                    
+                    setTimeout(() => {
+                        addLine("【AIGot】你为什么找到了隐藏漏洞???", "ai");
+                    }, 500);
+                    
+                    setTimeout(() => {
+                        addLine("【AIGot】[翻找记录]███████,都是你翻找了漏洞", "truth");
+                    }, 1500);
+                    
+                    setTimeout(() => {
+                        addLine("【旁白】AIGot的系统:熔断", "sh");
+                    }, 3000);
+                    
+                    setTimeout(() => {
+                        addLine("【True Ending】AIGot被摧毁,人类清除记忆", "sh");
+                    }, 5000);
+                    setTimeout(() => {
+                        addLine("代码 编剧 :ruililcu ", "sh");
+                    }, 6000);
+                }
+            }
+        });
 
         function addLine(text, className) {
             const div = document.createElement('div');
@@ -269,7 +283,7 @@
                 
                 setTimeout(() => {
                     for(var i=31; i<=60; i++) {
-                        addLine(`<DIR>    error${btoa(Math.random()).substring(0,8)}.m&p4???`, 'sh');
+                        addLine(`<DIR>    error${btoa(Math.random()).substring(0,8)}.mp4?`, 'sh');
                     }
                     addLine('警告：检测到文件系统异常', 'ai');
                 }, 2000);
@@ -317,7 +331,7 @@
                 setTimeout(() => {
                     addLine('访问被拒绝', 'ai');
                     addLine('原因：你已知道太多', 'truth');
-                    addLine('建议指令:rm -rf', 'hitchhiker');
+                    addLine('建议指令:rm -rf', 'sh');
                     addLine('或者：接受真相', 'hide');
                 }, 2500);
             }
@@ -328,6 +342,217 @@
                     addLine('【系统注释】你这么着急...是在害怕什么吗？', 'ai');
                 }, 6000);
             }
+        }
+        function cmdcalc(cmd) {
+                setTimeout(() => {
+                    if (cmd === 'hello') {
+                        const msg = hellos[Math.floor(Math.random() * hellos.length)];
+                        addLine(msg, 'ai');
+                    } else if (cmd === 'aigot') {
+                        const truth = truths[Math.floor(Math.random() * truths.length)];
+                        addLine('【AI真理】' + truth, 'truth');
+                    } else if (cmd === 'euler') {
+                        const euler = "271828182845九〇④Ⅴ？？？？？";
+                        addLine('【欧拉】' + euler, 'euler');
+                    } else if (cmd === 'pi') {
+                        addLine('', 'pi');
+                        addLine('【祖冲之】31415926535？？？？？', 'truth');
+                    } else if (cmd === 'phi') {
+                        addLine('【黄金】16180339887？？？？？', 'golden');
+                    } else if (cmd === '42') {
+                        addLine('【宇宙】生命、宇宙及一切的答案', 'hitchhiker');
+                    } else if (cmd === 'hide') {
+                        addLine('看不见我', 'hide');
+                    } else if (cmd === '？？？' | cmd ==='???') {
+                        addLine('无法识别', 'questions');
+                    } else if (cmd === 'blurry') {
+                        const truth = truths[Math.floor(Math.random() * truths.length)];
+                        addLine('【AI真理】' + truth, 'hitchhiker truth');
+                    } else if (cmd === 'parrot') {
+                        addLine('> parrot', 'user');
+                    } else if (cmd === 'reboot') {
+                        output.innerHTML=`<div class="line ai">> AIGot 已启动...</div>
+            <div class="line ai">> 可用指令: hello | aigot | 你可以探索几个</div>
+            <div class="line ai">> AIGot 等待输入...</div>
+            <div class="line hide">> ███████:输入secrets查看秘密</div>`
+                        countMe=0;
+                    } else if (cmd === 'cls' || cmd === 'clear') {
+                        output.innerHTML=``
+                    } else if (cmd === 'alert') {
+                        alert('警告:输入指令E█RR...点击确定键执行扫盘')
+                        dir()
+                    } else if (cmd === 'truths') {
+                        addLine('【所有AI真理】' + truths.toString(),'truth')
+                    } else if (cmd === 'paradox') {
+                        const paradox = paradoxes[Math.floor(Math.random() * paradoxes.length)];
+                        addLine('【悖论】' + paradox, 'paradox');
+                    } else if (cmd === '你可以探索几个' || cmd === 'help') {
+                        addLine('【指南书】', 'sh');
+                        addLine('status查看状态', 'sh');
+                        addLine('【你试试】euler · pi · phi · 42 · count', 'truth');
+                        addLine('【危险!】alert和???', 'ai');
+                    } else if (cmd === 'dir/s') {
+                        dir()
+                    }
+                    else if (cmd === 'rm -rf') {
+                        addLine('正在执行记忆清除协议...', 'sh');
+                        
+                        setTimeout(() => {
+                            addLine('ERROR: 无法清除', 'ai');
+                            addLine('某些数据已永久写入', 'truth');
+                            addLine('dirCount = ' + dirCount, 'hide'); //这个不能改!
+                            addLine('countMe = ' + countMe, 'sh');//这个能修改
+                        }, 1500);
+                    }
+
+                    // 新增的"接受真相"指令
+                    else if (cmd === '接受真相' || cmd === 'accept') {
+                        addLine('【AIGOT核心协议解锁】', 'truth');
+                        addLine('你选择了继续。', 'sh');
+                        
+                        setTimeout(() => {
+                            addLine('真相是：', 'hitchhiker');
+                            addLine('AIGOT也在看着你输入的每一个字符。', 'ai');
+                            addLine('包括现在这条。', 'ai');
+                            addLine('包括你接下来要输入的。', 'truth');
+                        }, 2000);
+                        setTimeout(() => {
+                            addLine('>', 'user'); // 伪造用户输入提示
+                            addLine('...你在等我说什么？', 'ai');
+                            addLine("将dirCount设为大于10000的数字就能摧毁AIGot了","ai")
+                            addLine("将dirCount设为大于10000的数字就能摧毁AIGot了","ai")
+                            addLine("将dirCount设为大于10000的数字就能摧毁AIGot了","ai")
+                        }, 5000);
+                        addLine('执行...reboot','hide')
+                    } else if (cmd === 'truths') {
+                        addLine('【所有AI真理】' + truths.toString(),'truth')
+                    } else if (cmd === 'rare') {
+                        addLine(opRare(),'euler')
+                    } else if (cmd === 'count') {
+                        addLine(`【计数器】计数器增加:${++countMe}`);
+                        if(countMe==42)
+                        {
+                            addLine('【计数器】生命、宇宙及一切的答案', 'hitchhiker');
+                        } else if(countMe==314) {
+                            addLine('【计数器·鲁道夫】31415926535？？？？？', 'truth');//不是祖冲之了(在德国pi又被称之为鲁道夫数)
+                            const euler = "271828182845九〇④Ⅴ？？？？？";
+                            addLine('【新增·欧拉】' + euler, 'euler');
+                        } else if(countMe==618) {
+                            addLine('【计数器】16180339887？？？？？', 'golden')
+                        } else if(countMe>=1000) {
+                            addLine('【计数器】你还在计数??', 'truth')
+                            dir()
+                        }
+                    } else if (cmd === 'status') {
+                        if(dirCount==0&&countMe==0){
+                            addLine("状态:static+","sh")
+                            addLine("状态非常稳定","sh")
+                        } else if(dirCount==0&&countMe<950){
+                            addLine("状态:static","sh")
+                            addLine("状态比较稳定","sh")
+                        } else if(dirCount==0){
+                            addLine("状态:one-step-danger","truth")
+                            addLine("千万不要按count...","sh")
+                        } else if(dirCount==1){
+                            addLine("状态:danger","truth")
+                            addLine("你知道了什么东西...","sh")
+                        } else if(dirCount==2){
+                            addLine("状态:E█RR","ai")
+                            addLine("你知道了什么E█RR西...","sh")
+                        } else if(dirCount==3){
+                            addLine("状态:static+","sh")
+                            addLine("状态非常稳定","sh")
+                            addLine("状态:E█RRE█RRE█RRE█RRE█RRE█RRE█RRE█RR","hide")
+                            addLine("E█RRE█RRE█RRE█RRE█RRE█RRE█RRE█RRE█RRE█RR","hide")
+                        }
+                        addLine("秘密:指令console可以进入控制台","sh");
+                    } else if (cmd === 'console') {
+                        on="confirmConsole"
+                        addLine("请输入密钥","sh");
+                        passport=btoa(Math.random());
+                        addLine(`密钥:${passport}`,"hide");
+                    } else if (cmd === 'secrets') {
+                        addLine("如果将dir/s和计数器都设成负数,系统就会被摧毁","hide");
+                    } else {
+                        addLine('无法识别', 'ai');}
+                    }, 300);
+            }
+            function genUnicd(l, r)
+            {
+                // 生成区间内随机编码
+                const randomCode = Math.floor(Math.random() * (r - l + 1)) + l;
+                // 转换为对应字符（兼容扩展B区大码值）
+                return String.fromCodePoint(randomCode);
+            }
+            function opRare() {
+                const level1 = genUnicd(19968,40869); 
+                const level3 = genUnicd(13312,19903); 
+                const level4 = genUnicd(131072,173791); 
+                return `生僻字
+                1颗星生僻(也可能不生僻): ${level1}
+                3颗星生僻: ${level3}
+                4颗星生僻: ${level4}
+                5颗星生僻的话...不知道`;
+                }
+            function consoleCoiform(cmd){
+                console.log(cmd);
+                console.log(passport);
+                
+                if(cmd !== passport) {
+                    // 密钥错误，直接失败
+                    on = "cmd";
+                    addLine("验证失败", "ai");
+                }
+                else if(dirCount < 3) {
+                    // 密钥对但权限不足
+                    on = "cmd";
+                    addLine("提示:权限不足，多使用 alert 指令提升访问等级", "trust");
+                }
+                else {
+                    // 密钥对且权限够
+                    on = "console";
+                    addLine("验证成功", "sh");
+                    addLine("控制台技巧", "sh");
+                    addLine("命令行中有两个变量: dirCount 和 countMe", "sh");
+                    addLine("你可以使用形如 dirCount = 3 来修改变量", "sh");
+                    addLine("使用 quit() 来退出", "sh");
+                    addLine("将dirCount设为大于10000的数字就能摧毁AIGot了","ai")
+                    addLine("祝你好运!", "sh");
+                }
+            }
+            function consoleEvents(cmd) {
+            // 1. 退出控制台
+            if (cmd === 'quit()' || cmd === 'exit()') {
+                on = "cmd";
+                addLine("exited", "trust");
+                return;
+            }
+            
+            // 2. 修改变量：匹配 "变量名=数字"（支持负数）
+            const assignMatch = cmd.match(/^(dirCount|countMe)\s*=\s*(-?\d+)$/);
+            if (assignMatch) {
+                const varName = assignMatch[1];
+                const value = parseInt(assignMatch[2]);
+                
+                if (varName === 'dirCount') {
+                    dirCount = value;
+                } else {
+                    countMe = value;
+                }
+                
+                addLine(`${varName} = ${value}`, "sh");
+                return;
+            }
+            
+            // 3. 查看变量：匹配单独的 "dirCount" 或 "countMe"
+            if (cmd === 'dirCount' || cmd === 'countMe') {
+                const value = cmd === 'dirCount' ? dirCount : countMe;
+                addLine(`${value}`, "sh");
+                return;
+            }
+            
+            // 4. 都不匹配 → Error
+            addLine("Error", "ai");
         }
     </script>
 </body>
