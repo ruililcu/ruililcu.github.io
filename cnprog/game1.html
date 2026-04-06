@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stonelee Mafia Game</title>
+    <style>
+        body
+        {
+            font-family:"Cascadia Mono",sans-serif;
+            color:limegreen;
+            min-height:100vh;
+            transition:all 1s ease;
+        }
+        h1
+        {
+            text-align:center;
+            font-family:"Poppins","Cascadia Mono",sans-serif;
+        }
+        h2{color:lightgreen;}
+        button
+        {
+            font-family:"Cascadia Code",sans-serif;
+            color:white;
+            background-color:rgba(123,130,140,123);
+            transition:all 0.4s ease;
+        }
+        button:hover
+        {
+            background-color:#6e82af;
+            box-shadow:0 0 3px white,0 0 7px silver;
+            transform:scale(1.2);
+        }
+        button:active
+        {
+            transform:scale(0.9);
+        }
+        .player-card
+        {
+            display:inline-block;
+            width:40px;
+            height:20px;
+            font-family:'Comic Sans MS';
+        }
+        .alive
+        {
+            color:#27e923;
+        }
+        .dead
+        {
+            color:#e92723;
+        }
+        .move-out
+        {
+            color:#2327e9;
+        }
+        .players-container
+        {
+            width: 500px; 
+        }
+    </style>
+</head>
+<body>
+    <h1>Stonelee Mafia Game</h1>
+    <p>
+        有一个组织,内部潜入了一些坏人,<br>
+        它们每天都会杀人,<br>
+        而你,我聪明的侦探,<br>
+        可以让人离开组织,<br>
+        以此把坏人全都除掉...
+    </p>
+    <div id="day">
+        <input type="text" id="playerInput" placeholder="你想让谁离开组织?">
+        <button onclick="checkInput()">查看发言</button>
+        <button id="moveOut" style="display: none;">确认移除(进入夜晚)</button>
+        <p id="AIresponse"></p>
+    </div>
+    <h2 >所有玩家存活状态（绿色=存活,红色=死亡,蓝色=移除）</h2>
+    <div class="players-container" id="playersStatus"></div>
+    <script>
+        const GAME_CONFIG=
+        {
+            totalPlayers:100, 
+            mafiaRatio:(Math.random()+1)/20 
+        };
+        let Game=
+        {
+            players:[],     
+            gameStarted:false 
+        };
+        let input=0;
+        let mafiaCount=0;
+        let civilianCount=0;
+        let captainCount=1;
+        document.getElementById("moveOut").addEventListener('click',function() {
+            Game.players.find(player=>player.id===Number(input)).isAlive=2;
+            renderPlayersStatus()
+            document.getElementById('moveOut').style.display="none";
+            getNewCount();
+            night()
+        });
+        const delay=(ms)=>new Promise(resolve=>setTimeout(resolve,ms));
+        function initGame() {
+            mafiaCount = Math.floor(GAME_CONFIG.totalPlayers * GAME_CONFIG.mafiaRatio);
+            civilianCount = GAME_CONFIG.totalPlayers - mafiaCount;
+            Game.players = []; 
+            for (let i = 0; i < mafiaCount; i++) {
+                Game.players.push({
+                    id: 0, 
+                    role: 'mafia',
+                    isAlive:1
+                });
+            }
+            Game.players.push({
+                id: 0,
+                role: 'captain',
+                isAlive:1
+            });
+            for (let i = 0; i < civilianCount - 1; i++) { 
+                Game.players.push({
+                    id: 0,
+                    role: 'civilian',
+                    isAlive:1
+                });
+            }
+            Game.players.sort(() => Math.random() - 0.5);
+            Game.players.forEach((player, index) => {
+                player.id = index + 1; 
+            });
+
+            Game.gameStarted = true;
+            renderPlayersStatus()
+        }//by gen-ai
+        function checkInput()
+        {
+            input = document.getElementById('playerInput').value.trim();
+            if(!input)
+            {
+                document.getElementById('AIresponse').textContent='请输入要驱逐的玩家编号(例如3)';
+                return;
+            }
+            document.getElementById('AIresponse').textContent=getResponse(input);
+            renderPlayersStatus();
+            document.getElementById('moveOut').style.display="inline";
+        }
+        function getResponse(playerId)
+        {
+            let p=Game.players.find(player=>player.id===Number(playerId));
+            if (p.role === "civilian") {
+                return Math.random() > 0.5 
+                    ? `${playerId}:我是好人,你别误解我了` 
+                    : `${playerId}:我...我是一个好人!绝对不是坏人`;
+            } else if (p.role === "mafia") {
+                return Math.random() > 0.9 
+                    ? `${playerId}:我是好人,你别误解我了` 
+                    : `${playerId}:我...我是一个好人!绝对不是坏人`;
+            } else if (p.role === "captain") {
+                return `提示:${playerId}为好人队长`;
+            }
+        }
+        function renderPlayersStatus() {
+            const container=document.getElementById('playersStatus');
+            container.innerHTML=''; 
+            let row=document.createElement('div');
+            row.style.marginBottom='10px';
+            Game.players.forEach((player,index)=>
+            {
+                if (index>0&&index%10==0)
+                    {
+                    container.appendChild(row);
+                    row = document.createElement('div');
+                    row.style.marginBottom='9px';
+                }
+                const card=document.createElement('div');
+                card.className=`player-card ${player.isAlive==1?'alive':(player.isAlive==2?"move-out":"dead")}`;
+                card.innerHTML=`<div style="font-weight: bold;">#${player.id}</div>`;
+                row.appendChild(card);
+            });
+            container.appendChild(row);
+        }
+        function killRandomPlayer()
+        {
+            if(!Game.gameStarted)return;
+            const alivePlayers = Game.players.filter(p => p.isAlive==1);
+            const aliveCivilianPlayers=Game.players.filter(p => p.role="civilian");
+            if (aliveCivilianPlayers.length<=10)
+            {
+                alert('GAME OVER');
+                return;
+            }
+            const randomIndex = Math.floor(Math.random() * alivePlayers.length);
+            alivePlayers[randomIndex].isAlive=0;
+            renderPlayersStatus();
+        }
+        function getNewCount()
+        {
+            civilianCount=0;
+            mafiaCount=0;
+            captainCount=0;
+            Game.players.forEach(player => {
+                if (player.isAlive) {
+                switch (player.role) {
+                    case 'civilian':
+                    civilianCount++;
+                    break;
+                    case 'mafia':
+                    mafiaCount++;
+                    break;
+                    case 'captain':
+                    captainCount++;
+                    break;
+                    default:
+                    console.warn(`!未知角色${player.role}!`);
+                }
+                }
+            });
+            if(!mafiaCount)alert("YOU WIN!");
+        }
+        function day()
+        {
+            document.getElementById("AIresponse").textContent="天亮了";
+            document.body.style.backgroundColor="white";
+            document.getElementById("day").style.display="inline";
+        }
+        async function night()
+        {
+            document.getElementById("AIresponse").textContent="天黑了"
+            document.body.style.backgroundColor="black";
+            document.getElementById("day").style.display="none";
+            for(let i=1;i<=mafiaCount*(Math.random()/3+0.2);i++)
+            {
+                killRandomPlayer();
+                renderPlayersStatus();
+                getNewCount();
+                await delay(500);
+            }
+            day()
+        }
+        initGame();
+    </script>
+</body>
+</html>
