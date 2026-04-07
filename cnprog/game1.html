@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stonelee Mafia Game</title>
+    <title>Stonelee's Number Password</title>
     <style>
         body
         {
@@ -35,13 +35,26 @@
         {
             transform:scale(0.9);
         }
-        .player-card
+        .member-label
+        {
+            display:inline-block;
+            width:40px;
+            height:20px;
+            color:#27e923;
+            font-family:'Comic Sans MS';
+            transition:color 1s ease,transform 0.4s ease;
+        }
+        .member-label
         {
             display:inline-block;
             width:40px;
             height:20px;
             font-family:'Comic Sans MS';
+            color: #27e923; 
         }
+        .alive { color:#27e923; }
+        .dead { color:#e92723; }
+        .move-out { color:#2327e9; }
         .alive
         {
             color:#27e923;
@@ -56,7 +69,7 @@
         }
         .players-container
         {
-            width: 500px; 
+            width:500px; 
         }
     </style>
 </head>
@@ -64,18 +77,18 @@
     <h1>Stonelee Mafia Game</h1>
     <p>
         有一个组织,内部潜入了一些坏人,<br>
-        它们每天都会杀人,<br>
+        它们每天都会淘汰组织中的人,<br>
         而你,我聪明的侦探,<br>
         可以让人离开组织,<br>
         以此把坏人全都除掉...
     </p>
     <div id="day">
         <input type="text" id="playerInput" placeholder="你想让谁离开组织?">
-        <button onclick="checkInput()">查看发言</button>
+        <button id="checkBtn" onclick="checkInput()">查看发言</button>
         <button id="moveOut" style="display: none;">确认移除(进入夜晚)</button>
-        <p id="AIresponse"></p>
     </div>
-    <h2 >所有玩家存活状态（绿色=存活,红色=死亡,蓝色=移除）</h2>
+    <p id="AIresponse"></p>
+    <h2 >所有成员存活状态（绿色=存活,红色=被坏人淘汰,蓝色=移除）</h2>
     <div class="players-container" id="playersStatus"></div>
     <script>
         const GAME_CONFIG=
@@ -92,23 +105,31 @@
         let mafiaCount=0;
         let civilianCount=0;
         let captainCount=1;
+        let usedToday=new Set();
+        let dayCount=1;
         document.getElementById("moveOut").addEventListener('click',function() {
-            Game.players.find(player=>player.id===Number(input)).isAlive=2;
-            renderPlayersStatus()
-            document.getElementById('moveOut').style.display="none";
-            getNewCount();
-            night()
+            const targetPlayer = Game.players.find(player=>player.id==Number(input));
+            if (targetPlayer) { 
+                targetPlayer.isAlive=2;
+                renderPlayersStatus();
+                document.getElementById('moveOut').style.display="none";
+                getNewCount();
+                night();
+            } else {
+                document.getElementById('AIresponse').textContent=`!成员${input}不存在!`;
+            }
         });
         const delay=(ms)=>new Promise(resolve=>setTimeout(resolve,ms));
+        
         function initGame() {
-            mafiaCount = Math.floor(GAME_CONFIG.totalPlayers * GAME_CONFIG.mafiaRatio);
-            civilianCount = GAME_CONFIG.totalPlayers - mafiaCount;
+            mafiaCount = Math.floor(GAME_CONFIG.totalPlayers * GAME_CONFIG.mafiaRatio)
+            civilianCount = GAME_CONFIG.totalPlayers - mafiaCount - captainCount; 
             Game.players = []; 
             for (let i = 0; i < mafiaCount; i++) {
                 Game.players.push({
                     id: 0, 
                     role: 'mafia',
-                    isAlive:1
+                    isAlive:1 
                 });
             }
             Game.players.push({
@@ -116,7 +137,7 @@
                 role: 'captain',
                 isAlive:1
             });
-            for (let i = 0; i < civilianCount - 1; i++) { 
+            for (let i = 0; i < civilianCount; i++) { 
                 Game.players.push({
                     id: 0,
                     role: 'civilian',
@@ -127,69 +148,160 @@
             Game.players.forEach((player, index) => {
                 player.id = index + 1; 
             });
-
             Game.gameStarted = true;
-            renderPlayersStatus()
-        }//by gen-ai
+            getNewCount();
+            renderPlayersStatus();
+        }
+        
         function checkInput()
         {
             input = document.getElementById('playerInput').value.trim();
-            if(!input)
+            if(!input || isNaN(input)) 
             {
-                document.getElementById('AIresponse').textContent='请输入要驱逐的玩家编号(例如3)';
+                document.getElementById('AIresponse').textContent='请输入有效的成员编号(例如3)';
                 return;
             }
+            const targetPlayer = Game.players.find(player=>player.id===Number(input));
+            if (!targetPlayer) {
+                document.getElementById('AIresponse').textContent=`!成员${input}不存在!`;
+                document.getElementById('moveOut').style.display="none";
+                return;
+            }
+            if (targetPlayer.isAlive !== 1) {
+                document.getElementById('AIresponse').textContent=`成员${input}已经被淘汰/移除,无法操作!`;
+                document.getElementById('moveOut').style.display="none";
+                return;
+            }
+            
             document.getElementById('AIresponse').textContent=getResponse(input);
             renderPlayersStatus();
             document.getElementById('moveOut').style.display="inline";
+            document.getElementById('checkBtn').style.display="inline";
+        }
+        function renderPlayersStatus()
+        {
+            const container = document.getElementById('playersStatus');
+            container.innerHTML = ''; 
+            let row = document.createElement('div');
+            row.style.marginBottom = '10px';
+
+            Game.players.forEach((player, index) =>
+            {
+                if (index > 0 && index % 10 == 0) {
+                    container.appendChild(row);
+                    row = document.createElement('div');
+                    row.style.marginBottom = '9px';
+                }
+                const l = document.createElement('div');
+                l.className = 'member-label';
+                l.innerHTML = `<div style="font-weight:bold;">#${player.id}</div>`;
+                setTimeout(()=>
+                {
+                    if (player.isAlive==1)
+                    {
+                        l.classList.add('alive');
+                    }
+                    else if(player.isAlive==2)
+                    {
+                        l.classList.add('move-out');
+                    }
+                    else
+                    {
+                        l.classList.add('dead');
+                    }
+                },20);
+                row.appendChild(l);
+            });
+
+            container.appendChild(row);
         }
         function getResponse(playerId)
         {
+            ans=""; 
+            if(usedToday.has(Number(input)))return `${playerId}:我今天被你问过了啊`;
+            usedToday.add(Number(input));
             let p=Game.players.find(player=>player.id===Number(playerId));
-            if (p.role === "civilian") {
-                return Math.random() > 0.5 
-                    ? `${playerId}:我是好人,你别误解我了` 
-                    : `${playerId}:我...我是一个好人!绝对不是坏人`;
-            } else if (p.role === "mafia") {
-                return Math.random() > 0.9 
-                    ? `${playerId}:我是好人,你别误解我了` 
-                    : `${playerId}:我...我是一个好人!绝对不是坏人`;
-            } else if (p.role === "captain") {
-                return `提示:${playerId}为好人队长`;
+            if (p.role === "civilian")
+            {
+                ans+=Math.random() > 0.5 
+                    ?`${playerId}:我是好人,你别误解我了` 
+                    :`${playerId}:我...我是一个好人!绝对不是坏人`;
             }
+            else if (p.role=="mafia")
+            {
+                ans+=Math.random()>0.9 
+                    ?`${playerId}:我...我是一个坏人!...不是,是好人!`
+                    :Math.random()>0.7
+                    ?`${playerId}:我...我是一个好人!绝对不是坏人`
+                    :`${playerId}:我是好人,你别误解我了`
+            }
+            else if (p.role=="captain")
+            {
+                ans+=`提示:${playerId}为好人队长`;
+            }
+            if (captainCount>0)
+            {
+                const captain = Game.players.find(p => p.role === "captain" && p.isAlive === 1);
+                if (captain)
+                {
+                    let randChance = Math.random();
+                    if (randChance>0.93)
+                    {
+                        ans+=`\n[队长]${captain.id}:成员${playerId}疑似[${p.role=="mafia"?"坏人":"好人"}]`;
+                    }
+                    else if (randChance>0.85)
+                    {
+                        let fakeRole=Math.random()>0.3?"好人":"坏人";
+                        ans+=`\n[队长]${captain.id}:成员${playerId}疑似[${fakeRole}]`;
+                    }
+                }
+            }
+            return ans;
         }
         function renderPlayersStatus() {
-            const container=document.getElementById('playersStatus');
-            container.innerHTML=''; 
-            let row=document.createElement('div');
-            row.style.marginBottom='10px';
-            Game.players.forEach((player,index)=>
+            const container = document.getElementById('playersStatus');
+            container.innerHTML = ''; 
+            let row = document.createElement('div');
+            row.style.marginBottom = '10px';
+            Game.players.forEach((player, index)=>
             {
-                if (index>0&&index%10==0)
-                    {
+                if (index > 0 && index % 10 == 0) {
                     container.appendChild(row);
                     row = document.createElement('div');
-                    row.style.marginBottom='9px';
+                    row.style.marginBottom = '9px';
                 }
-                const card=document.createElement('div');
-                card.className=`player-card ${player.isAlive==1?'alive':(player.isAlive==2?"move-out":"dead")}`;
-                card.innerHTML=`<div style="font-weight: bold;">#${player.id}</div>`;
-                row.appendChild(card);
+                const l = document.createElement('div');
+                l.className=`member-label`;
+                l.classList.add('alive'); 
+                if (player.isAlive === 1)
+                {
+                    l.classList.replace('alive', 'alive'); 
+                }
+                else if (player.isAlive === 2)
+                {
+                    l.classList.replace('alive', 'move-out');
+                } else {
+                    l.classList.replace('alive', 'dead');
+                }
+                l.innerHTML=`<div style="font-weight:bold;">#${player.id}</div>`;
+                row.appendChild(l);
             });
             container.appendChild(row);
         }
         function killRandomPlayer()
         {
             if(!Game.gameStarted)return;
-            const alivePlayers = Game.players.filter(p => p.isAlive==1);
-            const aliveCivilianPlayers=Game.players.filter(p => p.role="civilian");
+            const alivePlayers = Game.players.filter(p=>p.isAlive==1);
+            const aliveCivilianPlayers=Game.players.filter(p => p.role=="civilian"&&p.isAlive==1);
             if (aliveCivilianPlayers.length<=10)
             {
                 alert('GAME OVER');
                 return;
             }
-            const randomIndex = Math.floor(Math.random() * alivePlayers.length);
-            alivePlayers[randomIndex].isAlive=0;
+            const aliveNonMafia = alivePlayers.filter(p => p.role!=="mafia");
+            const target = aliveNonMafia.length > 0 ? aliveNonMafia : alivePlayers;
+            const randomIndex = Math.floor(Math.random() * target.length);
+            target[randomIndex].isAlive=0;
             renderPlayersStatus();
         }
         function getNewCount()
@@ -198,43 +310,44 @@
             mafiaCount=0;
             captainCount=0;
             Game.players.forEach(player => {
-                if (player.isAlive) {
-                switch (player.role) {
-                    case 'civilian':
-                    civilianCount++;
-                    break;
-                    case 'mafia':
-                    mafiaCount++;
-                    break;
-                    case 'captain':
-                    captainCount++;
-                    break;
-                    default:
-                    console.warn(`!未知角色${player.role}!`);
-                }
+                if (player.isAlive==1) {
+                    switch (player.role) {
+                        case 'civilian':
+                            civilianCount++;
+                            break;
+                        case 'mafia':
+                            mafiaCount++;
+                            break;
+                        case 'captain':
+                            captainCount++;
+                            break;
+                        default:
+                            console.warn(`!未知角色${player.role}!`);
+                    }
                 }
             });
-            if(!mafiaCount)alert("YOU WIN!");
+            if(mafiaCount==0)alert("坏人被清除了,组织回归了安宁...");
         }
         function day()
         {
-            document.getElementById("AIresponse").textContent="天亮了";
+            dayCount++;
+            document.getElementById("AIresponse").textContent=`第${dayCount}天`;
             document.body.style.backgroundColor="white";
-            document.getElementById("day").style.display="inline";
+            document.getElementById("day").style.display="block"; 
+            usedToday=new Set();
         }
         async function night()
         {
-            document.getElementById("AIresponse").textContent="天黑了"
+            document.getElementById("AIresponse").textContent=`天黑了,坏人开始行动...(第${dayCount}夜)`;
             document.body.style.backgroundColor="black";
             document.getElementById("day").style.display="none";
-            for(let i=1;i<=mafiaCount*(Math.random()/3+0.2);i++)
+            for(let i=1;i<=Math.ceil(mafiaCount*(Math.random()));i++)
             {
                 killRandomPlayer();
-                renderPlayersStatus();
                 getNewCount();
-                await delay(500);
+                await delay(800); 
             }
-            day()
+            day();
         }
         initGame();
     </script>
