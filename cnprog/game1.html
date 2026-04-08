@@ -91,15 +91,12 @@
     <h2 >所有成员存活状态（绿色=存活,红色=被坏人淘汰,蓝色=移除）</h2>
     <div class="players-container" id="playersStatus"></div>
     <script>
-        const GAME_CONFIG=
-        {
-            totalPlayers:100, 
-            mafiaRatio:(Math.random()+1)/20 
-        };
+        const mafiaRatio=(Math.random()+1)/20;
         let Game=
         {
             players:[],     
-            gameStarted:false 
+            gameStarted:false,
+            level:3
         };
         let input=0;
         let mafiaCount=0;
@@ -121,9 +118,10 @@
         });
         const delay=(ms)=>new Promise(resolve=>setTimeout(resolve,ms));
         
-        function initGame() {
-            mafiaCount = Math.floor(GAME_CONFIG.totalPlayers * GAME_CONFIG.mafiaRatio)
-            civilianCount = GAME_CONFIG.totalPlayers - mafiaCount - captainCount; 
+        function initGame()
+        {
+            mafiaCount = Math.floor((Game.level*40-20) * mafiaRatio)
+            civilianCount = (Game.level*40-20) - mafiaCount - captainCount; 
             Game.players = []; 
             for (let i = 0; i < mafiaCount; i++) {
                 Game.players.push({
@@ -173,7 +171,7 @@
                 return;
             }
             
-            document.getElementById('AIresponse').textContent=getResponse(input);
+            document.getElementById('AIresponse').innerHTML=getResponse(input);
             renderPlayersStatus();
             document.getElementById('moveOut').style.display="inline";
             document.getElementById('checkBtn').style.display="inline";
@@ -239,24 +237,42 @@
             {
                 ans+=`提示:${playerId}为好人队长`;
             }
-            if (captainCount>0)
+            if(captainCount>0)
             {
-                const captain = Game.players.find(p => p.role === "captain" && p.isAlive === 1);
-                if (captain)
+                const captain=Game.players.find(p=>p.role=="captain"&&p.isAlive==1);
+                if(captain&&playerId!=captain&&playerId!=_left(captain)&&
+                playerId!=_right(captain)&&playerId!=_up(captain)&&playerId!=_down(captain))ans+=captainHint();
+            }
+            for(const pid of [_up(playerId),_down(playerId),_left(playerId),_right(playerId)])
+            {
+                var person=Game.players.find(p=>p.id==pid);
+                if (!person||person.isAlive!=1) continue;
+                if(person.role=="captain")ans+=captainHint();
+                else if(person.role=="civilian")
                 {
-                    let randChance = Math.random();
-                    if (randChance>0.93)
-                    {
-                        ans+=`\n[队长]${captain.id}:成员${playerId}疑似[${p.role=="mafia"?"坏人":"好人"}]`;
-                    }
-                    else if (randChance>0.85)
-                    {
-                        let fakeRole=Math.random()>0.3?"好人":"坏人";
-                        ans+=`\n[队长]${captain.id}:成员${playerId}疑似[${fakeRole}]`;
-                    }
+                    ans+=`<br>${person.id}:${playerId}是[${p.role=="mafia"?"坏人":"好人"}]!`;
+                }
+                else
+                {
+                    ans+=`<br>${person.id}:${playerId}是[${p.role=="mafia"?"好人":"坏人"}]!`;
                 }
             }
             return ans;
+        }
+        function captainHint()
+        {
+            var res="";
+            let randChance=Math.random();
+            if(randChance>0.93)
+            {
+                res+=`<br>[队长]${captain.id}:成员${playerId}疑似[${p.role=="mafia"?"坏人":"好人"}]`;
+            }
+            else if (randChance>0.85)
+            {
+                let fakeRole=Math.random()>0.3?"好人":"坏人";
+                res+=`<br>[队长]${captain.id}:成员${playerId}疑似[${fakeRole}]`;
+            }
+            return res;
         }
         function renderPlayersStatus() {
             const container = document.getElementById('playersStatus');
@@ -349,6 +365,10 @@
             }
             day();
         }
+        function _left(x){return ((x-1)%(Game.level*40-20)+(Game.level*40-20)-1)%(Game.level*40-20)+1;}
+        function _right(x){return ((x+1)%(Game.level*40-20)+(Game.level*40-20)-1)%(Game.level*40-20)+1;}
+        function _up(x){return ((x+10)%(Game.level*40-20)+(Game.level*40-20)-1)%(Game.level*40-20)+1;}
+        function _down(x){return ((x-10)%(Game.level*40-20)+(Game.level*40-20)-1)%(Game.level*40-20)+1;}
         initGame();
     </script>
 </body>
