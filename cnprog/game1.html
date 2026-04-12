@@ -15,21 +15,35 @@
         h1
         {
             text-align:center;
-            font-family:"Poppins","Cascadia Mono",sans-serif;
+            font-family:"Cascadia Mono",sans-serif;
         }
         h2{color:lightgreen;}
+        input
+        {
+            border-radius:7px;
+            border:1px solid #ddeeff;
+            padding:10px 14px; 
+            outline:none;
+            transition:all 250ms ease; 
+        }
+        input:focus
+        {
+            border-color:limegreen; 
+            box-shadow:0 0 3px white,0 0 7px silver;
+        }
         button
         {
             font-family:"Cascadia Code",sans-serif;
             color:white;
-            background-color:rgba(123,130,140,123);
+            border-radius:2px;
+            background-color:rgba(123,130,140,0.3);
             transition:all 0.4s ease;
         }
         button:hover
         {
             background-color:#6e82af;
             box-shadow:0 0 3px white,0 0 7px silver;
-            transform:scale(1.2);
+            transform:scale(1.1);          
         }
         button:active
         {
@@ -38,66 +52,93 @@
         .member-label
         {
             display:inline-block;
-            width:40px;
+            width:60px;
             height:20px;
             color:#27e923;
             font-family:'Comic Sans MS';
             transition:color 1s ease,transform 0.4s ease;
         }
-        .member-label
-        {
-            display:inline-block;
-            width:40px;
-            height:20px;
-            font-family:'Comic Sans MS';
-            color: #27e923; 
-        }
-        .alive { color:#27e923; }
-        .dead { color:#e92723; }
-        .move-out { color:#2327e9; }
-        .alive
-        {
-            color:#27e923;
-        }
-        .dead
-        {
-            color:#e92723;
-        }
-        .move-out
-        {
-            color:#2327e9;
-        }
+        .alive { color:#2dd47b;}
+        .dead { color:#e63743;text-decoration:line-through;}
+        .move-out { color:#2f50e2;text-decoration:line-through;}
+        .used { color:#836b4d;text-decoration:underline;}
         .players-container
+        { 
+            width:600px;
+            background:rgba(100,150,190,0.05);
+            border-radius:7px;
+            overflow:hidden;
+        }
+        .css-fold input {display:none;}
+        .css-fold .fold-title {cursor:pointer;display:block;padding:7px;border-radius:7px;background:rgba(140,140,140,0.2);}
+        .css-fold .fold-content {background:rgba(100,100,190,0.2);max-height:0;overflow:hidden;
+            padding:0 12px;transition:250ms;border-radius:7px;}
+        .css-fold input:checked~.fold-content {max-height:500px;padding:12px;}
+        .css-fold input:checked~.fold-title::after {content:"▼";}
+        .css-fold .fold-title::after {content:"▶";}
+        .talk
         {
-            width:500px; 
+            text-align:center;
+            border:5px ridge #ddeeff;
+            border-radius:7px;
+            width:500px;
+            padding:15px;
+            color:grey;
         }
     </style>
 </head>
 <body>
-    <h1>Stonelee's Number Password</h1>
-    <h2>Thursday Update</h2>
-    <p>
-        有一个组织,内部潜入了一些坏人,<br>
-        它们每天都会淘汰组织中的人,<br>
-        而你,我聪明的侦探,<br>
-        可以让人离开组织,<br>
-        以此把坏人全都除掉...
-    </p>
-    <p style="color:orange;">
-        游戏规则:<br>
-        1.白天:输入编号质询成员,可通过发言/队长提示判断身份,确认移除后进入夜晚;<br>
-        2.夜晚:每名坏人一半概率会淘汰1名好人<br>
-        3.条件:好人小于或等于10名GAME OVER;移除所有坏人,组织回归安宁
-    </p>
-    <p id="gameLevel">第1关</p>
-    <div id="day">
-        <input type="text" id="playerInput" placeholder="你想让谁离开组织?">
-        <button id="checkBtn" onclick="checkInput()">查看发言</button>
-        <button id="moveOut" style="display: none;">确认移除(进入夜晚)</button>
+    <h1>数字密码</h1>
+    <p style="text-align:center;">Stonelee's Number Password🔢</p>
+    <h3>V1.0β</h3>
+    <label class="css-fold">
+    <input type="checkbox">
+    <h4 class="fold-title">背景&规则</h4>
+    <div class="fold-content">
+        <p>
+            一个平静的组织,被暗处的坏人悄然渗透,<br>
+            每一个夜晚,都有无辜者被残忍淘汰,<br>
+            而你,我聪明的侦探,是组织唯一的希望——<br>
+            你有权将可疑人员逐出组织,找出坏人,<br>
+            以此把坏人全都除掉...
+        </p>
+        <div style="color:orange;">
+            游戏规则📕:
+                <hr>1.【白天阶段】<br>
+                -输入成员编号发起质询,通过发言与证词判断身份<br>
+                -确认移除嫌疑人员后,进入夜晚阶段<br>
+                <hr>2.【夜晚阶段】<br>
+                -每一名坏人,都有50%的概率淘汰1名无辜好人(坏人有极低概率互相淘汰)<br>
+                <hr>3.【胜负条件】<br>
+                -失败:存活好人数量≤10→???<br>
+                -胜利:成功移除所有坏人→组织重归安宁,前进一关<br>
+        </div>
     </div>
-    <div id="AIresponse"></div>
-    <h2>所有成员存活状态（绿色=存活,红色=被坏人淘汰,蓝色=移除）</h2>
+    </label>
+    <p id="gameLevel">第1关</p>
+    <div id="day" style="text-align:center;">
+        请选择要移除的成员编号:
+        <input type="text" id="playerInput" placeholder="你想让谁离开组织?">
+        <button id="checkBtn" onclick="checkInput()" style="background-color:#66acaf;">查看证词</button>
+        <button id="moveOut" style="display:none;background-color:#6823e9;">确认移除·进入夜晚</button>
+    </div>
+    <br>
+    <div id="AIresponse" class="talk">此处显示对话及通知</div>
+    <br>
+    <h2>所有成员存活状态(状态表下为释义)</h2>
     <div class="players-container" id="playersStatus"></div>
+    <label class="css-fold">
+        <input type="checkbox">
+        <h4 class="fold-title">🟢成员状态说明</h4>
+        <div class="fold-content" style="line-height:0.9;">
+            <p style="color:#2dd47b;">存活</p>
+            <p style="color:#e63743; text-decoration:line-through;">被坏人淘汰</p>
+            <p style="color:#2f50e2; text-decoration:line-through;">被你移除</p>
+            <p style="color:#836b4d; text-decoration:underline;">今日已被你质询过</p>
+            <p style="color:#66acaf;">当前正在审问的目标</p>
+            <p style="color:#7d5cbc;">当前审问的证人(即深青色上下左右的人)</p>
+        </div>
+    </label>
     <script>
         const mafiaRatio=(Math.random()+1)/20;
         let Game=
@@ -112,6 +153,7 @@
         let captainCount=1;
         let usedToday=new Set();
         let dayCount=1;
+        let line="main"
         document.getElementById("moveOut").addEventListener('click',function() {
             const targetPlayer = Game.players.find(player=>player.id==Number(input));
             if (targetPlayer) { 
@@ -158,7 +200,6 @@
             getNewCount();
             renderPlayersStatus();
         }
-        
         function checkInput()
         {
             input = document.getElementById('playerInput').value.trim();
@@ -207,7 +248,11 @@
                 l.innerHTML = `<div style="font-weight:bold;">#${player.id}</div>`;
                 setTimeout(()=>
                 {
-                    if (player.isAlive==1)
+                    if(usedToday.has(player.id))
+                    {
+                        l.classList.add('used');
+                    }
+                    else if(player.isAlive==1)
                     {
                         l.classList.add('alive');
                     }
@@ -227,20 +272,33 @@
         }
         function resetAllColors()
         {
-            Game.players.forEach((p, index) =>
-            {
-            const el = document.querySelectorAll(".member-label")[index];
-            if (!el) return;
-            if (p.isAlive === 1) el.style.color = "#27e923"; 
-            else if (p.isAlive === 2) el.style.color = "#2327e9"; 
-            else el.style.color = "#e92723"; 
-        });
+            Game.players.forEach((p,index)=>{
+                const el = document.querySelectorAll(".member-label")[index];
+                if (!el) return;
+                if(usedToday.has(p.id))
+                {
+                    el.className='member-label used';
+                    return;
+                }
+                if (p.isAlive==1)
+                {
+                    el.className='member-label alive';
+                }
+                else if (p.isAlive==2)
+                {
+                    el.className='member-label move-out';
+                }
+                else
+                {
+                    el.className='member-label dead';
+                }
+            });
         }
         function highlightTargetAndNeighbors(playerId)
         {
             const labels = document.querySelectorAll(".member-label");
             const tIdx = Game.players.findIndex(p => p.id === playerId);
-            if (tIdx >= 0) labels[tIdx].style.color = "teal";
+            if (tIdx >= 0) labels[tIdx].style.color = "#66acaf";
             const neighbors = [_up(playerId), _down(playerId), _left(playerId), _right(playerId)];
             neighbors.forEach(nid =>
             {
@@ -249,29 +307,29 @@
                 const nIdx = Game.players.findIndex(p => p.id === nid);
                 if (nIdx >= 0 && np && np.isAlive === 1)
                 { 
-                    labels[nIdx].style.color = "violet";
+                    labels[nIdx].style.color = "#7d5cbc";
                 }
             });
         }
         function getResponse(playerId)
         {
-            ans=""; 
+            ans="以下是成员对话:"; 
             if(usedToday.has(Number(input)))return `${playerId}:我今天被你问过了啊`;
             usedToday.add(Number(input));
             let p=Game.players.find(player=>player.id===Number(playerId));
             if (p.role === "civilian")
             {
                 ans+=Math.random()>0.5 
-                    ?`<p style='color:teal'>${playerId}:我是好人,你别误解我了</p>` 
-                    :`<p style='color:teal'>${playerId}:我...我是一个好人!绝对不是坏人`;
+                    ?`<p style='color:#66acaf'>${playerId}:我是好人,你别误解我了</p>` 
+                    :`<p style='color:#66acaf'>${playerId}:我...我是一个好人!绝对不是坏人`;
             }
             else if (p.role=="mafia")
             {
                 ans+=Math.random()>0.9 
-                    ?`<p style='color:teal'>${playerId}:我...我是一个坏人!...不是,是好人!</p>`
+                    ?`<p style='color:#66acaf'>${playerId}:我...我是一个坏人!...不是,是好人!</p>`
                     :Math.random()>0.7
-                    ?`<p style='color:teal'>${playerId}:我...我是一个好人!绝对不是坏人</p>`
-                    :`<p style='color:teal'>${playerId}:我是好人,你别误解我了</p>`
+                    ?`<p style='color:#66acaf'>${playerId}:我...我是一个好人!绝对不是坏人</p>`
+                    :`<p style='color:#66acaf'>${playerId}:我是好人,你别误解我了</p>`
             }
             else if (p.role=="captain")
             {
@@ -281,15 +339,15 @@
             for(const pid of [_up(playerId),_down(playerId),_left(playerId),_right(playerId)])
             {
                 var person=Game.players.find(p=>p.id==pid);
-                if (!person||person.isAlive!=1)continue;
+                if(!person||person.isAlive!=1||Math.random<1/2)continue;
                 if(person.role=="captain")ans+=captainHint(playerId);
                 else if(person.role=="civilian")
                 {
-                    ans+=`<p style='color:violet'>${person.id}:${playerId}是${p.role=="mafia"?"坏人":"好人"}</p>`;
+                    ans+=`<p style='color:#7d5cbc'>${person.id}:${playerId}是${p.role=="mafia"?"坏人":"好人"}</p>`;
                 }
                 else
                 {
-                    ans+=`<p style='color:violet'>${person.id}:${playerId}是${p.role=="mafia"?"好人":"坏人"}</p>`;
+                    ans+=`<p style='color:#7d5cbc'>${person.id}:${playerId}是${p.role=="mafia"?"好人":"坏人"}</p>`;
                 }
             }
             return ans;
@@ -345,17 +403,13 @@
         function killRandomPlayer()
         {
             if(!Game.gameStarted)return;
-            const alivePlayers = Game.players.filter(p=>p.isAlive==1);
-            const aliveCivilianPlayers=Game.players.filter(p => p.role=="civilian"&&p.isAlive==1);
-            if (aliveCivilianPlayers.length<=10)
-            {
-                alert('GAME OVER');
-                Game.level=1;
-                initGame();
-            }
-            const aliveNonMafia = alivePlayers.filter(p => p.role!=="mafia");
-            const target = aliveNonMafia.length > 0 ? aliveNonMafia : alivePlayers;
-            const randomIndex = Math.floor(Math.random()*target.length);
+            const alivePlayers=Game.players.filter(p=>p.isAlive==1);
+            let aliveCivilianPlayers;
+            if(Math.random()<=0.95)aliveCivilianPlayers=Game.players.filter(p => p.role=="civilian"&&p.isAlive==1);
+            else aliveCivilianPlayers=Game.players
+            const aliveNonMafia=alivePlayers.filter(p => p.role!=="mafia");
+            const target=aliveNonMafia.length > 0 ? aliveNonMafia : alivePlayers;
+            const randomIndex=Math.floor(Math.random()*target.length);
             target[randomIndex].isAlive=0;
             renderPlayersStatus();
         }
@@ -384,11 +438,67 @@
             if(mafiaCount==0)
             {
                 alert("坏人被清除了,组织回归了安宁...");
-                alert("但是你又发现另一个组织也有同样的症状发生...");
-                
                 Game.level++;
+                if(line=="unlimited")
+                {
+                    alert("但是你又发现另一个组织也有同样的症状发生...");
+                    return;
+                }
+                if(Game.level==2)
+                {
+                    alert("但是你又发现另一个组织也有同样的症状发生...");
+                    alert("组织的队长:看你居然把我们的合作组织的坏人找出来了");
+                    alert("队长:那么现在,你也帮我们找找!");
+                    if(confirm("你愿意帮组织吗?"))alert("你看着3倍体量的组织,点了点头");
+                    else
+                    {
+                        line="stay"
+                        alert("队长:坏人太多了,我们没好人了!");
+                        alert("于是组织解散了,但...");
+                        alert("但是最初的组织又遇到了麻烦");
+                        alert("最初组织的队长:现在坏人又潜入了组织");
+                    }
+                }
+                if(Game.level==3)
+                {
+                    alert("三年之后")
+                    alert("组织中新的队长:我组织已经历多轮淘汰,坏人仍在暗处,侦探,请继续你的排查!")
+                }
+                if(Game.level==4)
+                {
+                    if(line=="main")
+                    {
+                        if(confirm("你接到了一个电话,好像是另一个组织打给你的...你要接吗?"))
+                        {
+                            alert("电话:有人在吗?我是组织的队长");
+                            alert("组织的队长:你把两个组织的坏人都找出来了,这一次,组织体量比上次大40%");
+                        }
+                        else
+                        {
+                            alert("达成结局1:到此为止")
+                            alert("结局后开启无尽模式");
+                            line="unlimited";
+                        }
+                    }
+                    else
+                    {
+                        alert("但是你又发现另一个组织也有同样的症状发生...")
+                        alert("组织的队长:你把好多坏人都找出来了,这一次,组织体量比上次大40%");
+                    }
+                    alert("队长:据我所知,这个组织和之前的坏人是一伙的!")
+                    alert("于是,你开始帮队长...")
+                }//Coming soon...
                 document.getElementById("gameLevel").innerText = `第${Game.level}关`;
                 initGame();
+            }
+            if(civilianCount<=10)
+            {
+                initGame();
+                if(line=="unlimited")return;
+                alert("坏人还是赢了");
+                alert("你眼前的画面骤然模糊,在睁眼的瞬间碎成一片虚无");
+                alert("原来只是一场梦")
+                alert("你又回到了刚刚接手那个案子时...")
             }
         }
         function day()
