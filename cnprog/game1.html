@@ -8,20 +8,23 @@
         body
         {
             font-family:"Cascadia Mono",sans-serif;
-            color:limegreen;
+            color:deepskyblue;
             min-height:100vh;
             transition:all 1s ease;
+            text-shadow:5px 5px 10px rgba(190,190,190,1);    
+            background-color:#ddeeff;
         }
         h1
         {
             text-align:center;
             font-family:"Cascadia Mono",sans-serif;
+            transition:all 1s ease;
         }
-        h2{color:lightgreen;}
+        h2{color:red;}
         input
         {
             border-radius:7px;
-            border:1px solid #ddeeff;
+            border:1px solid #bae3ff;
             padding:10px 14px; 
             outline:none;
             transition:all 250ms ease; 
@@ -35,15 +38,21 @@
         {
             font-family:"Cascadia Code",sans-serif;
             color:white;
+            border:none;
             border-radius:2px;
             background-color:rgba(123,130,140,0.3);
             transition:all 0.4s ease;
+            padding:5px 5px;
         }
         button:hover
         {
             background-color:#6e82af;
             box-shadow:0 0 3px white,0 0 7px silver;
             transform:scale(1.1);          
+        }
+        h1:hover
+        {
+            transform:scale(1.1);     
         }
         button:active
         {
@@ -53,25 +62,28 @@
         {
             display:inline-block;
             width:60px;
-            height:20px;
-            color:#27e923;
+            height:30px;
             font-family:'Comic Sans MS';
-            transition:color 1s ease,transform 0.4s ease;
+            transition:all 0.4s ease;
+            border-radius:2px;
+            margin:4px;
+            text-align:center;
+            color:white;
         }
-        .alive { color:#2dd47b;}
-        .dead { color:#e63743;text-decoration:line-through;}
-        .move-out { color:#2f50e2;text-decoration:line-through;}
-        .used { color:#836b4d;text-decoration:underline;}
+        .alive { color:#2dd47b;background:rgba(95, 230, 126, 0.2);}
+        .dead { color:#e63743;text-decoration:line-through;background-color:rgba(230, 95, 95, 0.2);}
+        .move-out { color:#2f50e2;text-decoration:line-through;background-color:rgba(27, 99, 215, 0.2);}
+        .used { color:#74706c;text-decoration:underline;background-color:rgba(90, 85, 75, 0.2);}
         .players-container
         { 
-            width:600px;
+            width:700px;
             background:rgba(100,150,190,0.05);
             border-radius:7px;
             overflow:hidden;
         }
         .css-fold input {display:none;}
         .css-fold .fold-title {cursor:pointer;display:block;padding:7px;border-radius:7px;background:rgba(140,140,140,0.2);}
-        .css-fold .fold-content {background:rgba(100,100,190,0.2);max-height:0;overflow:hidden;
+        .css-fold .fold-content {background:rgba(190,190,190,0.2);max-height:0;overflow:hidden;
             padding:0 12px;transition:250ms;border-radius:7px;}
         .css-fold input:checked~.fold-content {max-height:500px;padding:12px;}
         .css-fold input:checked~.fold-title::after {content:"▼";}
@@ -79,7 +91,7 @@
         .talk
         {
             text-align:center;
-            border:5px ridge #ddeeff;
+            border:5px ridge skyblue;
             border-radius:7px;
             width:500px;
             padding:15px;
@@ -90,7 +102,7 @@
 <body>
     <h1>数字密码</h1>
     <p style="text-align:center;">Stonelee's Number Password🔢</p>
-    <h3>V1.0β</h3>
+    <h3>V1.0</h3>
     <label class="css-fold">
     <input type="checkbox">
     <h4 class="fold-title">背景&规则</h4>
@@ -130,13 +142,13 @@
     <label class="css-fold">
         <input type="checkbox">
         <h4 class="fold-title">🟢成员状态说明</h4>
-        <div class="fold-content" style="line-height:0.9;">
-            <p style="color:#2dd47b;">存活</p>
-            <p style="color:#e63743; text-decoration:line-through;">被坏人淘汰</p>
-            <p style="color:#2f50e2; text-decoration:line-through;">被你移除</p>
-            <p style="color:#836b4d; text-decoration:underline;">今日已被你质询过</p>
-            <p style="color:#66acaf;">当前正在审问的目标</p>
-            <p style="color:#7d5cbc;">当前审问的证人(即深青色上下左右的人)</p>
+        <div class="fold-content" style="line-height:1.4;">
+            <p style="color:#2dd47b;margin:2px 0;">存活</p>
+            <p style="color:#e63743;text-decoration:line-through;margin:2px 0;">被坏人淘汰</p>
+            <p style="color:#2f50e2;text-decoration:line-through;margin:2px 0;">被你移除</p>
+            <p style="color:#74706c;text-decoration:underline;margin:2px 0;">今日已被你质询过</p>
+            <p style="color:#66acaf;margin:2px 0;">当前正在审问的目标</p>
+            <p style="color:#7d5cbc;margin:2px 0;">当前审问的证人(即深青色上下左右的人)</p>
         </div>
     </label>
     <script>
@@ -229,46 +241,42 @@
             resetAllColors();
             highlightTargetAndNeighbors(Number(input));
         }
-        function renderPlayersStatus()
-        {
+        let playerLabels = [];
+
+        function renderPlayersStatus() {
             const container = document.getElementById('playersStatus');
-            container.innerHTML = ''; 
-            let row = document.createElement('div');
-            row.style.marginBottom = '10px';
+            if (playerLabels.length === 0) {
+                container.innerHTML = '';
+                let row = document.createElement('div');
+                row.style.marginBottom = '10px';
 
-            Game.players.forEach((player, index) =>
-            {
-                if (index > 0 && index % 10 == 0) {
-                    container.appendChild(row);
-                    row = document.createElement('div');
-                    row.style.marginBottom = '9px';
+                Game.players.forEach((player, index) => {
+                    if (index > 0 && index % 10 === 0) {
+                        container.appendChild(row);
+                        row = document.createElement('div');
+                        row.style.marginBottom = '9px';
+                    }
+                    const l = document.createElement('div');
+                    l.className = 'member-label';
+                    l.innerHTML = `<div style="font-weight:bold;">#${player.id}</div>`;
+                    row.appendChild(l);
+                    playerLabels.push(l);
+                });
+
+                container.appendChild(row);
+            }
+            Game.players.forEach((player, i) => {
+                const l = playerLabels[i];
+                if (!l) return;
+                l.classList.remove('alive', 'dead', 'move-out', 'used');
+                if (player.isAlive === 1) {
+                    l.classList.add('alive');
+                } else if (player.isAlive === 2) {
+                    l.classList.add('move-out');
+                } else {
+                    l.classList.add('dead');
                 }
-                const l = document.createElement('div');
-                l.className = 'member-label';
-                l.innerHTML = `<div style="font-weight:bold;">#${player.id}</div>`;
-                setTimeout(()=>
-                {
-                    if(usedToday.has(player.id))
-                    {
-                        l.classList.add('used');
-                    }
-                    else if(player.isAlive==1)
-                    {
-                        l.classList.add('alive');
-                    }
-                    else if(player.isAlive==2)
-                    {
-                        l.classList.add('move-out');
-                    }
-                    else
-                    {
-                        l.classList.add('dead');
-                    }
-                },20);
-                row.appendChild(l);
             });
-
-            container.appendChild(row);
         }
         function resetAllColors()
         {
@@ -370,34 +378,43 @@
             }
             return res;
         }
-        function renderPlayersStatus() {
+        function renderPlayersStatus()
+        {
             const container = document.getElementById('playersStatus');
-            container.innerHTML = ''; 
+            container.innerHTML = '';
             let row = document.createElement('div');
             row.style.marginBottom = '10px';
             Game.players.forEach((player, index)=>
             {
-                if (index > 0 && index % 10 == 0) {
+                if (index > 0 && index % 10 == 0)
+                {
                     container.appendChild(row);
                     row = document.createElement('div');
                     row.style.marginBottom = '9px';
                 }
-                const l = document.createElement('div');
+                const l=document.createElement('div');
                 l.className=`member-label`;
-                l.classList.add('alive'); 
-                if (player.isAlive === 1)
-                {
-                    l.classList.replace('alive', 'alive'); 
-                }
-                else if (player.isAlive === 2)
-                {
-                    l.classList.replace('alive', 'move-out');
-                } else {
-                    l.classList.replace('alive', 'dead');
-                }
                 l.innerHTML=`<div style="font-weight:bold;">#${player.id}</div>`;
                 row.appendChild(l);
+                setTimeout(()=>
+                {
+                    l.classList.add('alive'); 
+
+                    if (player.isAlive === 1)
+                    {
+                        l.classList.replace('alive', 'alive');
+                    } else if (player.isAlive === 2)
+                    {
+                        l.classList.replace('alive', 'move-out');
+                    }
+                    else
+                    {
+                        l.classList.replace('alive', 'dead');
+                    }
+                }, 10); 
+
             });
+
             container.appendChild(row);
         }
         function killRandomPlayer()
@@ -505,14 +522,16 @@
         {
             dayCount++;
             document.getElementById("AIresponse").textContent=`第${dayCount}天`;
-            document.body.style.backgroundColor="white";
+            document.body.style.backgroundColor="#ddeeff";
             document.getElementById("day").style.display="block"; 
             usedToday=new Set();
         }
         async function night()
         {
             document.getElementById("AIresponse").textContent=`天黑了,坏人开始行动...(第${dayCount}夜)`;
-            document.body.style.backgroundColor="black";
+            document.body.style.backgroundColor="orange";
+            await delay(200); 
+            document.body.style.backgroundColor="#001122";
             document.getElementById("day").style.display="none";
             for(let i=1;i<=Math.ceil(mafiaCount*(Math.random()));i++)
             {
