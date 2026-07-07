@@ -109,6 +109,12 @@
         <h2>ruililcu的酒店</h2>
         <p class="project-desc">所有楼层均为独特!</p>
             <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/03e28310-76e6-4728-ad66-a03b636775a0" />>
+        <h2>心情日记</h2>
+        基于原生前端重构的vibe coding心情日记，LocalStorage 本地离线存储，无后端零依赖，全新自定义视觉交互改版，轻量化情绪记录小工具
+        <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/eb652ad3-a118-4c5f-a155-7fe37a5c6c94" />
+        <a href="https://ruililcu.github.io/cnprog/vibe.html" target="_blank">进入原版</a>
+        <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/a4d2200e-e5b7-404e-ae41-c2ecca327e42" />
+        <a href="https://ruililcu.github.io/cnprog/nd.html" target="_blank">进入修订版</a>
     </div>
 </body>
 </html>
