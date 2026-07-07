@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soft Mood Diary</title>
+    <style>
+        body
+        {
+            font-family:"Cascadia Mono",sans-serif;
+            background-color:black;
+            color:limegreen;
+            min-height:100vh;
+        }
+        h1
+        {
+            text-align:center;
+            font-family:"Poppins","Cascadia Mono",sans-serif;
+            background-color:black;
+        }
+        h2{color:lightgreen;}
+        button
+        {
+            font-family:"Cascadia Code",sans-serif;
+            color:white;
+            background-color:rgba(123,130,140,123);
+            transition:all 0.4s ease;
+        }
+        button:hover
+        {
+            background-color:#6e82af;
+            box-shadow:0 0 3px white,0 0 7px silver;
+            transform:scale(1.2);
+        }
+        button:active
+        {
+            transform:scale(0.9);
+        }
+        .card {
+            background: rgba(64, 0, 255, 0.348);
+            backdrop-filter: blur(10px);
+            padding: 24px;
+            box-shadow: 0 8px 30px rgba(180,180,200,0.15);
+            margin-bottom: 24px;
+        }
+
+        .mood-select {
+            display: flex;
+            gap: 10px;
+            margin: 16px 0 22px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .mood-btn
+        {
+            flex: 1;
+            min-width: 70px;
+            padding: 12px 6px;
+            font-size: 14px;
+        }
+        .mood-btn:nth-child(1) { background: #543; }
+        .mood-btn:nth-child(2) { background: #453; }
+        .mood-btn:nth-child(3) { background: #354; }
+        .mood-btn:nth-child(4) { background: #435; }
+        .mood-btn:nth-child(5) { background: #345; }
+        .mood-btn:nth-child(6) { background: #534; }
+
+        textarea {
+            width: 100%;
+            border: 1px solid #e2e2e8;
+            padding: 14px;
+            min-height: 120px;
+            resize: none;
+            font-size: 15px;
+            background: rgba(255,255,255,0.6);
+            transition: 0.3s;
+            outline: none;
+        }
+
+
+        .submit-btn {
+            width: 100%;
+            margin-top: 16px;
+            padding: 14px;
+            border: none;
+            background: linear-gradient(120deg, #b4b8f0, #d2b8f0);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+
+        .history-title {
+            font-size: 18px;
+            margin-bottom: 16px;
+            opacity: 0.8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .export-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .export-btn {
+            padding: 6px 10px;
+            border: 1px solid #c5c8f0;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+
+        .diary-item {
+            padding: 16px;
+            margin-bottom: 12px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .diary-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+            opacity: 0.7;
+        }
+
+        .del-btn {
+            border: none;
+            background: transparent;
+            color: #ff7b9c;
+            cursor: pointer;
+        }
+
+        .messages {
+            overflow-x: auto;
+            width:75%;
+            padding:14px;
+            background-color: rgba(127, 223, 255, 0.416);
+            height:50px;
+            margin:14px
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Soft Mood Diary(心情日记)</h1>
+
+        <!-- 写日记区域 -->
+        <div class="card">
+            <p>今天是什么心情？</p>
+            <div class="mood-select">
+                <button class="mood-btn" data-mood="低落">低落:(</button>
+                <button class="mood-btn" data-mood="平淡">平淡:|</button>
+                <button class="mood-btn" data-mood="普通">普通:I</button>
+                <button class="mood-btn" data-mood="不选">不选:?</button>
+                <button class="mood-btn" data-mood="快乐">快乐:)</button>
+                <button class="mood-btn" data-mood="狂喜">狂喜:D</button>
+            </div>
+            <textarea id="noteInput" placeholder="日记要写这里"></textarea>
+            <button class="submit-btn" id="saveBtn">保存今日日记</button>
+        </div>
+        <div class="messages" id="messages">消息栏<br></div>
+        <!-- 历史记录 + 剪贴板导出按钮 -->
+        <div class="card">
+            <div class="history-title">
+                <span>过往记录</span>
+                <div class="export-group">
+                    <button class="export-btn" id="copyPlain">复制明文到剪贴板</button>
+                    <button class="export-btn" id="copyBase64">导出base64格式日记</button>
+                    <button class="export-btn" id="importBase64">导入base64日记</button>
+                </div>
+            </div>
+            <div id="historyList"></div>
+        </div>
+    </div>
+    <script>
+        // 全局状态
+        let selectedMood = "";
+        const moodBtns = document.querySelectorAll(".mood-btn");
+        const noteInput = document.getElementById("noteInput");
+        const saveBtn = document.getElementById("saveBtn");
+        const historyList = document.getElementById("historyList");
+        const message = document.getElementById("messages");
+        function showmessage(msg) {
+            message.innerText+=msg+"\n";
+        }
+
+        // 选择心情
+        moodBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                moodBtns.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                selectedMood = btn.dataset.mood;
+            });
+        });
+
+        // 读取本地存储日记
+        function getDiaries() {
+            const raw = localStorage.getItem("moodDiary");
+            return raw ? JSON.parse(raw) : [];
+        }
+
+        // 渲染历史列表
+        function renderList() {
+            const list = getDiaries();
+            historyList.innerHTML = "";
+            const moodBgMap = {
+                "低落": "#543",
+                "平淡": "#453",
+                "普通": "#354",
+                "不选": "#435",
+                "快乐": "#345",
+                "狂喜": "#534"
+            };
+
+            list.reverse().forEach((item, idx) => {
+                const div = document.createElement("div");
+                div.className = "diary-item";
+                div.style.background = moodBgMap[item.mood];
+                div.innerHTML = `
+                    <div class="diary-header">
+                        <span>${item.date} · ${item.mood}</span>
+                        <button class="del-btn" data-index="${list.length - 1 - idx}">删除</button>
+                    </div>
+                    <p>${item.content}</p>
+                `;
+                historyList.appendChild(div);
+            })
+
+            // 删除事件
+            document.querySelectorAll(".del-btn").forEach(btn => {
+                btn.onclick = () => {
+                    const idx = Number(btn.dataset.index);
+                    const all = getDiaries();
+                    all.splice(idx, 1);
+                    localStorage.setItem("moodDiary", JSON.stringify(all));
+                    renderList();
+                }
+            })
+        }
+
+        // 保存日记
+        saveBtn.addEventListener("click", () => {
+            const content = noteInput.value.trim();
+            if (!selectedMood) return showmessage("请先选择今天的心情(可以标记'不选')");
+            if (!content) return showmessage("日记内容不能为空");
+
+            const diaryList = getDiaries();
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,"0")}`;
+
+            diaryList.push({
+                mood: selectedMood,
+                content: content,
+                date: dateStr
+            });
+            localStorage.setItem("moodDiary", JSON.stringify(diaryList));
+
+            noteInput.value = "";
+            moodBtns.forEach(b => b.classList.remove("active"));
+            selectedMood = "";
+            renderList();
+            showmessage("日记保存成功!可从日记栏里查看");
+        })
+
+        // ========== 剪贴板导出核心逻辑 ==========
+        // 1. 复制明文日记
+        document.getElementById("copyPlain").addEventListener("click", async () => {
+            const diaries = getDiaries();
+            if (diaries.length === 0) return showmessage("暂无日记可复制");
+
+            // 格式化纯文本
+            let text = "===== 全部心情日记 =====\n\n";
+            diaries.forEach(item => {
+                text += `【${item.date} | ${item.mood}】\n${item.content}\n-------------------------\n\n`;
+            });
+
+            try {
+                await navigator.clipboard.writeText(text);
+                showmessage("明文日记已复制到剪贴板");
+            } catch (err) {
+                showmessage(`复制失败:${err}`);
+                console.error(err);
+            }
+        })
+
+        document.getElementById("copyBase64").addEventListener("click", async () => {
+            const diaries = getDiaries();
+            if (diaries.length === 0) return showmessage("暂无日记可复制");
+
+            const jsonStr = JSON.stringify(diaries);
+            // 中文兼容Base64编码
+            const utf8Bytes = new TextEncoder().encode(jsonStr);
+            let binary = "";
+            utf8Bytes.forEach(byte => binary += String.fromCharCode(byte));
+            const base64Code = btoa(binary);
+
+            try {
+                await navigator.clipboard.writeText(base64Code);
+                showmessage("日记base64格式已导出!");
+            } catch (err) {
+                showmessage(`导出失败:${err}`);
+                console.error(err);
+            }
+        })
+        document.getElementById("importBase64").addEventListener("click", async () => {
+        try {
+            const base64Str=prompt("导入:")
+            let binaryStr = atob(base64Str);
+            const bytes = [];
+            for(let i=0; i<binaryStr.length; i++){
+                bytes.push(binaryStr.charCodeAt(i));
+            }
+            const jsonRaw = new TextDecoder().decode(new Uint8Array(bytes));
+            const importData = JSON.parse(jsonRaw);
+
+            // 校验导入数据格式
+            if(!Array.isArray(importData)) throw new Error("数据格式错误");
+            const validMoods = ["低落","平淡","普通","不选","开心","快乐","狂喜"];
+            for(const item of importData){
+                if(!item.mood || !item.content || !item.date || !validMoods.includes(item.mood)){
+                    throw new Error("存在无效日记条目，导入终止");
+                }
+            }
+
+            // 覆盖本地存储（如需追加改为concat）
+            localStorage.setItem("moodDiary", JSON.stringify(importData));
+            renderList();
+            showmessage(`导入成功(共恢复${importData.length}条日记记录)`);
+        } catch (err) {
+            showmessage(`导入失败:${err}`);
+            console.error(err);
+        }
+    })
+        // 页面加载渲染
+        window.onload = renderList;
+    </script>
+</body>
+</html>
