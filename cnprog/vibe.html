@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soft Mood Diary</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            padding: 30px 15px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-weight: 400;
+            margin-bottom: 32px;
+            opacity: 0.85;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 8px 30px rgba(180,180,200,0.15);
+            margin-bottom: 24px;
+        }
+
+        .mood-select {
+            display: flex;
+            gap: 10px;
+            margin: 16px 0 22px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .mood-btn {
+            flex: 1;
+            min-width: 70px;
+            padding: 12px 6px;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .mood-btn:nth-child(1) { background: #ffd6e0; }
+        .mood-btn:nth-child(2) { background: #ffe9cc; }
+        .mood-btn:nth-child(3) { background: #e6f4ff; }
+        .mood-btn:nth-child(4) { background: #d9f7e9; }
+        .mood-btn:nth-child(5) { background: #e9dfff; }
+
+        .mood-btn.active {
+            transform: scale(1.06);
+            box-shadow: 0 0 12px rgba(120,120,220,0.25);
+        }
+
+        textarea {
+            width: 100%;
+            border: 1px solid #e2e2e8;
+            border-radius: 14px;
+            padding: 14px;
+            min-height: 120px;
+            resize: none;
+            font-size: 15px;
+            background: rgba(255,255,255,0.6);
+            transition: 0.3s;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: #c5c8f0;
+            box-shadow: 0 0 0 3px rgba(180,180,240,0.18);
+        }
+
+        .submit-btn {
+            width: 100%;
+            margin-top: 16px;
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(120deg, #b4b8f0, #d2b8f0);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .submit-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .history-title {
+            font-size: 18px;
+            margin-bottom: 16px;
+            opacity: 0.8;
+        }
+
+        .diary-item {
+            padding: 16px;
+            border-radius: 14px;
+            margin-bottom: 12px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .diary-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+            opacity: 0.7;
+        }
+
+        .del-btn {
+            border: none;
+            background: transparent;
+            color: #ff7b9c;
+            cursor: pointer;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Soft Mood Diary · 心情日记</h1>
+
+        <!-- 写日记区域 -->
+        <div class="card">
+            <p>今天是什么心情？</p>
+            <div class="mood-select">
+                <button class="mood-btn" data-mood="低落">😔 低落</button>
+                <button class="mood-btn" data-mood="平淡">😐 平淡</button>
+                <button class="mood-btn" data-mood="普通">🙂 普通</button>
+                <button class="mood-btn" data-mood="开心">😊 开心</button>
+                <button class="mood-btn" data-mood="狂喜">🥳 狂喜</button>
+            </div>
+            <textarea id="noteInput" placeholder="写下今天的小事、情绪、碎碎念..."></textarea>
+            <button class="submit-btn" id="saveBtn">保存今日日记</button>
+        </div>
+
+        <!-- 历史记录 -->
+        <div class="card">
+            <h2 class="history-title">过往记录</h2>
+            <div id="historyList"></div>
+        </div>
+    </div>
+
+    <script>
+        // 全局状态
+        let selectedMood = "";
+        const moodBtns = document.querySelectorAll(".mood-btn");
+        const noteInput = document.getElementById("noteInput");
+        const saveBtn = document.getElementById("saveBtn");
+        const historyList = document.getElementById("historyList");
+
+        // 选择心情
+        moodBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                moodBtns.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                selectedMood = btn.dataset.mood;
+            });
+        });
+
+        // 读取本地存储
+        function getDiaries() {
+            const raw = localStorage.getItem("moodDiary");
+            return raw ? JSON.parse(raw) : [];
+        }
+
+        // 渲染历史列表
+        function renderList() {
+            const list = getDiaries();
+            historyList.innerHTML = "";
+            const moodBgMap = {
+                "低落": "#ffd6e077",
+                "平淡": "#ffe9cc77",
+                "普通": "#e6f4ff77",
+                "开心": "#d9f7e977",
+                "狂喜": "#e9dfff77"
+            };
+
+            list.reverse().forEach((item, idx) => {
+                const div = document.createElement("div");
+                div.className = "diary-item";
+                div.style.background = moodBgMap[item.mood];
+                div.innerHTML = `
+                    <div class="diary-header">
+                        <span>${item.date} · ${item.mood}</span>
+                        <button class="del-btn" data-index="${list.length - 1 - idx}">删除</button>
+                    </div>
+                    <p>${item.content}</p>
+                `;
+                historyList.appendChild(div);
+            })
+
+            // 删除事件
+            document.querySelectorAll(".del-btn").forEach(btn => {
+                btn.onclick = () => {
+                    const idx = Number(btn.dataset.index);
+                    const all = getDiaries();
+                    all.splice(idx, 1);
+                    localStorage.setItem("moodDiary", JSON.stringify(all));
+                    renderList();
+                }
+            })
+        }
+
+        // 保存日记
+        saveBtn.addEventListener("click", () => {
+            const content = noteInput.value.trim();
+            if (!selectedMood) return alert("请先选择今天的心情！");
+            if (!content) return alert("日记内容不能为空~");
+
+            const diaryList = getDiaries();
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,"0")}`;
+
+            diaryList.push({
+                mood: selectedMood,
+                content: content,
+                date: dateStr
+            });
+            localStorage.setItem("moodDiary", JSON.stringify(diaryList));
+
+            // 清空输入
+            noteInput.value = "";
+            moodBtns.forEach(b => b.classList.remove("active"));
+            selectedMood = "";
+            renderList();
+            alert("日记保存成功 ✨");
+        })
+
+        // 页面加载渲染
+        window.onload = renderList;
+    </script>
+</body>
+</html>
