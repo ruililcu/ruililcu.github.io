@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Stonelee's Dungeon</title>
+<style>
+*{margin: 0; padding: 0; box-sizing: border-box;}
+body { background: #222;overflow: hidden; }
+canvas {
+  background: #222;
+  display: block;
+}
+</style>
+</head>
+<body>
+    <div style="position: relative;">
+        <canvas id="dungeonCanvas"></canvas>
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+      </div>
+
+<script>
+    const canvas = document.getElementById('dungeonCanvas');
+    const ctx = canvas.getContext('2d');
+    let OFFSET_X = 0;
+    let OFFSET_Y = 0;
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        OFFSET_X = canvas.width / 2;
+        OFFSET_Y = canvas.height / 2;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    const ROOM_SIZE = 140;
+    const CORRIDOR_WIDTH = 40;
+    const GRID_STEP = 140;
+    let exp=0;
+
+    let player = { x: 0, y: 0, z: 0 };
+    const floorCache = new Map();
+    let currentFloorZ = 0;
+
+    let currentRooms =[
+        { x: 0, y: 0, type: 'normal', visible: false },
+        { x: 2, y: 0, type: 'east', visible: false },
+        { x: -2, y: 0, type: 'stair_down', visible: false },
+        { x: 0, y: -2, type: 'south', visible: false },
+        { x: 0, y: 2, type: 'north', visible: false },
+        { x: -4, y: 2, type: 'title', visible: false }
+    ];
+    let currentCorridors = [
+        [currentRooms[0], currentRooms[1], false], 
+        [currentRooms[0], currentRooms[2], false], 
+        [currentRooms[0], currentRooms[3], false],  
+        [currentRooms[0], currentRooms[4], false]
+    ];
+    let currentWalkable = new Set(
+        ["0,0", "0,1", "0,-1", "1,0", "-1,0", 
+        "0,2", "0,-2", "2,0", "-2,0"]
+    );
+    let stairlist=[]
+    let hp=100,atk=5,def=2;
+    let hint="Welcome to Stonelee's Dungeon!";
+    let enemyList=[];
+    let enemyPage=1;
+    showmode=''
+    let aname='',adata=[];
+    const COLOR = {
+        roomFill: '#635342',
+        roomFill2: '#856442',
+        bonusFill:'#D9D621',
+        textRoom: '#ffffff',
+        stairFill: '#235898',
+        stroke: '#222222',
+        slimeFill:'#32E344',
+        atkFill:'#E34432',
+        defFill:'#4432E3',
+        invisible_room:'#322921',
+        exp:'#21A4D9',
+        p:'#D932E3'
+    };
+    const ENEMY=new Map([
+        ['slime',[1,1,"It's the weakest enemy.It's soft.",20,3,0]], 
+        ['slime-a',[2,3,"It's bigger than 3 slimes.",70,3,0]], 
+        ['slime-b',[2,3,"It isn't soft.You must have more atk power.",20,3,5]], 
+        ['rat',[1,5,"A small enemy.It's weak and lives deep.",15,4,0]],
+        ['bat',[2,2,"They can fly and have very strong attacks.",12,12,0]],
+        ['skeleton',[3,2,"A strong enemy in shallow floors and made by bones.",100,5,5]]
+    ]);
+    const anything=new Map([
+        ['wooden sword',[1,"Crude wooden sword.+1 ATK.Better than bare nothing.",3]], 
+        ['enemy damage calculator',[1,"Reveals the exact damage and attibutes of this enemy(Press N)",2]]
+    ])
+    calculatorInfo={}
+    canvas.addEventListener('click', function() {
+        if (hp<=0) {
+                location.reload(); 
+            }
+        });
+        class SimpleInventory {
+            constructor(maxVolume) {
+                this.maxVolume = maxVolume;
+                this.items = [];
+                this.totalVolume = 0;
+            }
+            addItem(item) {
+                if (!item || !item.name) return false;
+                
+                const volume = (item.volume || 1) * (item.quantity || 1);
+                if (this.totalVolume + volume > this.maxVolume) {
+                    hint='no enough volume.'
+                    return false;
+                }
+
+                if (item.stackable !== false) {
+                const exist = this.items.find(i => i.name === item.name && i.stackable !== false);
+                if (exist) {
+                    exist.quantity = (exist.quantity || 1) + (item.quantity || 1);
+                    this.totalVolume += volume;
+                    return true;
+                }
+                }
+
+                this.items.push({
+                    ...item,
+                    quantity: item.quantity || 1,
+                    volume: item.volume || 1,
+                    stackable: item.stackable !== false
+                });
+                this.totalVolume += volume;
+                return true;
+            }
+
+            removeItem(name, quantity = 1) {
+                const index = this.items.findIndex(i => i.name === name);
+                if (index === -1) return null;
+                
+                const item = this.items[index];
+                const removeQty = Math.min(quantity, item.quantity || 1);
+                const removeVol = item.volume * removeQty;
+                
+                if (removeQty >= (item.quantity || 1)) {
+                    this.items.splice(index, 1);
+                } else {
+                    item.quantity -= removeQty;
+                }
+                this.totalVolume -= removeVol;
+                return { ...item, quantity: removeQty };
+            }
+            getAll() {
+                return [...this.items];
+            }
+            clear() {
+                this.items = [];
+                this.totalVolume = 0;
+            }
+            getFreeVolume() {
+                return this.maxVolume - this.totalVolume;
+            }
+            getUsage() {
+                return Math.round((this.totalVolume / this.maxVolume) * 100);
+            }
+            }
+    function drawInventory(ctx, inventory, canvas) {
+        const items = inventory.getAll();
+        ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 28px Arial';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText('Your backpack', 30, 30);
+        const usage = inventory.getUsage();
+        ctx.fillText(`Volume:${inventory.totalVolume}/${inventory.maxVolume}  (${usage}%)`, 30, 72);
+        if (items.length === 0) {
+            ctx.textAlign = 'center';
+            ctx.fillText('There is empty!', canvas.width / 2, canvas.height / 2);
+            return;
+        }
+
+        let y = 130;
+        const padding = 20;
+        const lineHeight = 104;
+
+        items.forEach((item, index) => {
+            const x = 30;
+            const bgColor = index % 2 === 0 ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)';
+            
+            
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(x, y - 6, canvas.width - 60, lineHeight);
+
+            ctx.fillStyle = COLOR.stroke;
+            ctx.font = '13px Arial';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.fillText(`${index + 1}`, x, y);
+
+            ctx.fillStyle = COLOR.slimeFill;
+            ctx.font = 'bold 17px Arial';
+            const nameText = item.quantity > 1 ? `${item.name} x${item.quantity}` : item.name;
+            ctx.fillText(nameText, x + 45, y);
+
+            ctx.fillStyle = COLOR.p;
+            ctx.font = '14px Arial';
+            const desc = `"`+item.description+`"`;
+            ctx.fillText(`${desc}`, x + 250, y+52);
+
+            ctx.fillStyle = COLOR.defFill;
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'right';
+            ctx.fillText(`volume:${item.volume}`, canvas.width - 40, y + 1);
+
+            y += lineHeight;
+        });
+    }
+    function showChoices()
+    {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = COLOR.slimeFill;
+        ctx.font = '24px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`You can heal for ${(exp/20+10).toFixed(2)} HP[H]`,canvas.width/2,canvas.height/2-25);
+        ctx.fillStyle = COLOR.p;
+        ctx.fillText(`or have the ${aname}[J].`,canvas.width/2,canvas.height/2+25);
+    }
+    const bag = new SimpleInventory(15);
+    function logicToPixel(lx, ly) {
+        const px = OFFSET_X + lx * GRID_STEP;
+        const py = OFFSET_Y - ly * GRID_STEP;
+        return { x: px, y: py };
+    }
+    function genEnemy(r,f)
+    {
+        r.forEach(tile => {
+            if (tile.type === 'normal'&&Math.random()<1/2) {
+                var p=Math.random();
+                var a=0;
+                for (const [enename,enedata] of ENEMY)if(f>=enedata[1]){
+                    a+=1/enedata[0];
+                }
+                p*=a;
+                for (const [enename,enedata] of ENEMY)if(f>=enedata[1]){
+                    p-=1/enedata[0];
+                    if(p<=0)
+                    {
+                        tile.type=enename;
+                        break;
+                    }
+                }
+            }
+        });
+    }
+    function reloadFloor(z) {
+        currentFloorZ = z;
+        if (floorCache.has(z)) {
+            const cache = floorCache.get(z);
+            genEnemy(cache.rooms,currentFloorZ);
+            currentRooms = cache.rooms;
+            currentCorridors = cache.corridors;
+            currentWalkable = cache.walkable;
+            return;
+        }
+        const data = generateDungeon();
+        genEnemy(data.rooms,currentFloorZ);
+        if (z==1) {
+            const targetItem = data.rooms.find(item => item.x === 0 && item.y === 0);
+            if (targetItem) {
+                targetItem.type = 'normal';
+            }
+        }
+        floorCache.set(z, {
+            rooms: data.rooms,
+            corridors: data.corridors,
+            walkable: data.pointSet
+        });
+        currentRooms = data.rooms;
+        currentCorridors = data.corridors;
+        currentWalkable = data.pointSet;
+    }
+
+    function generateDungeon() {
+        try {
+            const MAX_TARGET = 15;
+            const jumpDirs = [[2,0],[-2,0],[0,2],[0,-2]];
+            const pointSet = new Set(["0,0"]);
+            const roomTypeMap = new Map();
+            roomTypeMap.set("0,0", "stair_up");
+
+            const roomList = [{x: 0, y: 0}];
+
+            while (1) {
+                const seedRoom = roomList[Math.floor(Math.random() * roomList.length)];
+                const [dx, dy] = jumpDirs[Math.floor(Math.random() * 4)];
+                const nx = seedRoom.x + dx;
+                const ny = seedRoom.y + dy;
+                const key = `${nx},${ny}`;
+
+                if (!pointSet.has(key)) {
+                    pointSet.add(key);
+                    roomList.push({x: nx, y: ny});
+                    if (roomList.length === MAX_TARGET) {
+                        roomTypeMap.set(key, "stair_down");
+                        stairlist.push([nx,ny])
+                        break;
+                    } else if (Math.random() < 1/12) {
+                        roomTypeMap.set(key, "bonus");
+                    } else {
+                        roomTypeMap.set(key, "normal");
+                    }
+                }
+            }
+
+            const localRooms = [];
+            roomTypeMap.forEach((type, keyStr) => {
+                const [x, y] = keyStr.split(',').map(Number);
+                localRooms.push({ x, y, type, visible: false});
+            });
+
+            const linkRecord = new Set();
+            const localCorridors = [];
+            for (let i = 0; i < localRooms.length; i++) {
+                const r1 = localRooms[i];
+                for (let j = i + 1; j < localRooms.length; j++) {
+                    const r2 = localRooms[j];
+                    const dx = Math.abs(r1.x - r2.x);
+                    const dy = Math.abs(r1.y - r2.y);
+                    const isShortConnect = (dx === 2 && dy === 0) || (dx === 0 && dy === 2);
+                    if (!isShortConnect) continue;
+
+                    const keyA = `${r1.x},${r1.y}`;
+                    const keyB = `${r2.x},${r2.y}`;
+                    const linkKey = [keyA, keyB].sort().join('_');
+                    if (linkRecord.has(linkKey)) continue;
+
+                    linkRecord.add(linkKey);
+                    localCorridors.push([r1, r2, false]);
+
+                    if (r1.y === r2.y) {
+                        const minX = Math.min(r1.x, r2.x);
+                        const maxX = Math.max(r1.x, r2.x);
+                        for (let x = minX; x <= maxX; x++) {
+                            pointSet.add(`${x},${r1.y}`);
+                        }
+                    } else {
+                        const minY = Math.min(r1.y, r2.y);
+                        const maxY = Math.max(r1.y, r2.y);
+                        for (let y = minY; y <= maxY; y++) {
+                            pointSet.add(`${r1.x},${y}`);
+                        }
+                    }
+                }
+            }
+
+            return { rooms: localRooms, corridors: localCorridors, pointSet };
+        } catch (e) {
+            console.error("BUG!!!", e);
+            return {
+                rooms: [{ x: 0, y: 0, type: "bug" }],
+                corridors: [],
+                pointSet: new Set(["0,0"])
+            };
+        }
+    }
+    function calcdmg(enehp,eneatk,enedef)
+    {
+        let dmg = enehp * Math.max(1, eneatk - def) / Math.max(1, atk - enedef);
+        return dmg;
+    }
+    function versus(enehp,eneatk,enedef)
+    {
+        let dmg =calcdmg(enehp,eneatk,enedef);
+        hp -= dmg;
+        exp+=dmg;
+    }
+    function updateEnemyList() {
+        const countMap = new Map();
+        currentRooms.forEach(room => {
+            if (room.visible && ENEMY.has(room.type)) {
+                const type = room.type;
+                countMap.set(type, (countMap.get(type) || 0) + 1);
+            }
+        });
+        enemyList = Array.from(countMap.entries()).map(([type, count]) => ({
+            type,
+            count,
+            data: ENEMY.get(type) 
+        }));
+        if (enemyPage >= enemyList.length) enemyPage = 0;
+        if (enemyList.length === 0) enemyPage = 0;
+    }
+    function prevEnemy() {
+        if (enemyList.length === 0) return;
+        enemyPage = (enemyPage - 1 + enemyList.length) % enemyList.length;
+    }
+    function nextEnemy() {
+        if (enemyList.length === 0) return;
+        enemyPage = (enemyPage + 1) % enemyList.length;
+    }
+    function updateVisibility(playerX, playerY) {
+        currentRooms.forEach(r => r.visible = false);
+        currentCorridors.forEach(c => c[2] = false);
+
+        const rookDirs = [[2,0], [-2,0], [0,2], [0,-2]]; 
+        let currentRoom = currentRooms.find(r => r.x === playerX && r.y === playerY);
+        
+        if (currentRoom) {
+            currentRoom.visible = true; 
+
+            rookDirs.forEach(dir => {
+                let step = 1;
+                let prevX = playerX;
+                let prevY = playerY;
+
+                while(true) {
+                    let nx = playerX + dir[0] * step;
+                    let ny = playerY + dir[1] * step;
+                    
+                    let targetRoom = currentRooms.find(r => r.x === nx && r.y === ny);
+                    
+                    if(targetRoom) {
+                        targetRoom.visible = true; 
+                        currentCorridors.forEach(corr => {
+                            if (
+                                (corr[0].x === prevX && corr[0].y === prevY && corr[1].x === nx && corr[1].y === ny) ||
+                                (corr[0].x === nx && corr[0].y === ny && corr[1].x === prevX && corr[1].y === prevY)
+                            ) {
+                                corr[2] = true;
+                            }
+                        });
+
+                        prevX = nx;
+                        prevY = ny;
+                        step++; 
+                    } else {
+                        break; 
+                    }
+                }
+            });
+
+        } else {
+            let currentCorridor = currentCorridors.find(c => {
+                let x1 = c[0].x, y1 = c[0].y;
+                let x2 = c[1].x, y2 = c[1].y;
+                let minX = Math.min(x1, x2), maxX = Math.max(x1, x2);
+                let minY = Math.min(y1, y2), maxY = Math.max(y1, y2);
+                return playerX >= minX && playerX <= maxX && playerY >= minY && playerY <= maxY;
+            });
+
+            if (currentCorridor) {
+                currentCorridor[2] = true; 
+                let room1 = currentRooms.find(r => r.x === currentCorridor[0].x && r.y === currentCorridor[0].y);
+                let room2 = currentRooms.find(r => r.x === currentCorridor[1].x && r.y === currentCorridor[1].y);
+
+                if (room1) room1.visible = true;
+                if (room2) room2.visible = true;
+                
+                let dirX = (room2.x - room1.x) / 2;
+                let dirY = (room2.y - room1.y) / 2;
+
+                function scanAlongDirection(startX, startY, dx, dy) {
+                    let step = 2;
+                    let prevX = startX;
+                    let prevY = startY;
+                    while(true) {
+                        let nx = startX + dx * step;
+                        let ny = startY + dy * step;
+                        let targetRoom = currentRooms.find(r => r.x === nx && r.y === ny);
+                        
+                        if (targetRoom) {
+                            targetRoom.visible = true; 
+                            currentCorridors.forEach(corr => {
+                                if (
+                                    (corr[0].x === prevX && corr[0].y === prevY && corr[1].x === nx && corr[1].y === ny) ||
+                                    (corr[0].x === nx && corr[0].y === ny && corr[1].x === prevX && corr[1].y === prevY)
+                                ) {
+                                    corr[2] = true;
+                                }
+                            });
+
+                            prevX = nx;
+                            prevY = ny;
+                            step++; 
+                        } else {
+                            break; 
+                        }
+                    }
+                }
+                scanAlongDirection(room2.x, room2.y, dirX, dirY);
+                scanAlongDirection(room1.x, room1.y, -dirX, -dirY);
+            }
+        }
+    }
+    function drawRoom(room) {
+        const center = logicToPixel(room.x - player.x, room.y - player.y);
+        const left = center.x - ROOM_SIZE / 2;
+        const top = center.y - ROOM_SIZE / 2;
+        ctx.fillStyle = COLOR.roomFill;
+        if(room.type === 'title')
+        {
+            ctx.font = "bold 36px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = COLOR.atkFill;
+            ctx.fillText(`Stonelee's Dungeon`, center.x, center.y - 10);
+            return;
+        }
+        if(!room.visible)
+        {
+            ctx.font = "bold 14px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = COLOR.invisible_room;
+            ctx.fillRect(left, top, ROOM_SIZE, ROOM_SIZE);
+            ctx.fillStyle = COLOR.textRoom;
+            ctx.fillText(`???`, center.x, center.y - 10);
+            return;
+        }
+        if (room.type === 'bonus') ctx.fillStyle = COLOR.bonusFill;
+        if (room.type === 'stair_down' || room.type === 'stair_up') ctx.fillStyle = COLOR.stairFill;
+        if (room.type === 'stair_down'&&(currentFloorZ==0))ctx.fillStyle = COLOR.slimeFill;
+        if (room.type === 'normal-2') ctx.fillStyle = COLOR.roomFill2;
+        ctx.fillRect(left, top, ROOM_SIZE, ROOM_SIZE);
+        ctx.fillStyle = COLOR.textRoom;
+        ctx.font = "bold 14px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        if (room.type === 'stair_down'&&currentFloorZ==0) {
+            ctx.fillText(`Start journey`, center.x, center.y - 10);
+        } else if (room.type === 'stair_down') {
+            ctx.fillText(`🪜↓${currentFloorZ+1}F`, center.x, center.y - 10);
+        } else if (room.type === 'stair_up') {
+            ctx.fillText(`🪜↑${currentFloorZ-1}F`, center.x, center.y - 10);
+        } else if (room.type === 'bonus') {
+            ctx.fillText("BONUS!", center.x, center.y);
+        } else if (room.type === 'bug') {
+            ctx.fillText("🪲unfixed bug", center.x, center.y);
+        } else if (room.type === 'slime') {
+            ctx.fillStyle = COLOR.slimeFill;
+            ctx.fillText("slime🟢", center.x, center.y);
+        } else if (room.type === 'slime-a') {
+            ctx.fillStyle = COLOR.slimeFill;
+            ctx.fillText("bigger slime🟢", center.x, center.y);
+        } else if (room.type === 'slime-b') {
+            ctx.fillStyle = COLOR.slimeFill;
+            ctx.fillText("harder slime🟢", center.x, center.y);
+        }else if (room.type === 'rat') {
+            ctx.fillStyle = COLOR.p;
+            ctx.fillText("rat🐀", center.x, center.y);
+        }else if (room.type === 'bat') {
+            ctx.fillStyle = COLOR.p;
+            ctx.fillText("bat🦇", center.x, center.y);
+        }else if (room.type === 'skeleton') {
+            ctx.fillText("skeleton💀", center.x, center.y);
+        }
+    }
+
+    function drawCorridor(conn) {
+        const [r1, r2,vis] = conn;
+        const p1 = logicToPixel(r1.x - player.x, r1.y - player.y);
+        const p2 = logicToPixel(r2.x - player.x, r2.y - player.y);
+        ctx.strokeStyle = COLOR.invisible_room;
+        if(vis)ctx.strokeStyle = COLOR.roomFill;
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.lineWidth = CORRIDOR_WIDTH;
+        ctx.lineCap = "square";
+        ctx.stroke();
+    }
+    function drawCalc(ctx, canvas)
+    {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        if (enemyList.length === 0) {
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '24px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('...No enemies', canvas.width/2, canvas.height/2);
+            return;
+        }
+        const enemy = enemyList[enemyPage];
+        if (!enemy) return;
+
+        const [rarity, , desc, hp, atk, def] = enemy.data;
+        const damage = calcdmg(hp*Math.pow(1.1,currentFloorZ), atk*Math.pow(1.1,currentFloorZ), def*Math.pow(1.1,currentFloorZ)); 
+
+        ctx.fillStyle = '#64ffda';
+        ctx.font = '18px Arial';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText(`find ${enemyList.length} kind of enemies`, 30, 30);
+
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 28px Arial';
+        ctx.textBaseline = 'top';
+        ctx.fillText(`${enemy.type}  (x${enemy.count})`, 30, 70);
+
+        ctx.font = '20px Arial';
+        let y = 130;
+        ctx.fillStyle = '#ff6b6b';
+        ctx.fillStyle = COLOR.slimeFill; 
+        ctx.fillText(`HP  : ${(hp*Math.pow(1.1,currentFloorZ)).toFixed(2)}`, 30, y); y += 35;
+        ctx.fillStyle = COLOR.atkFill;  
+        ctx.fillText(`ATK : ${(atk*Math.pow(1.1,currentFloorZ)).toFixed(2)}`, 30, y); y += 35;
+        ctx.fillStyle = COLOR.defFill;   
+        ctx.fillText(`DEF : ${(def*Math.pow(1.1,currentFloorZ)).toFixed(2)}`, 30, y); y += 35;
+        ctx.fillStyle = COLOR.atkFill;  
+        ctx.font = 'bold 22px Arial';
+        ctx.fillText(`DMG: ${damage.toFixed(2)}`, 30, y); y += 45;
+        ctx.font = '16px Arial';
+        ctx.fillStyle = COLOR.p; 
+        ctx.fillText(`"${desc}"`, 30, y);y += 200;
+        ctx.fillStyle =COLOR.defFill 
+        ctx.font = '16px Arial';
+        const total = enemyList.length;
+        ctx.fillText(`← Press Z        Press M →  (${enemyPage+1}/${total})`, canvas.width/2, y);
+    }
+    function hasItem(itemName) {
+    return bag.items.some(item => item.name.toLowerCase() === itemName.toLowerCase());
+    }
+    function updatethings()
+    {
+        atk=5;
+        def=3;
+        if(hasItem('wooden sword'))
+        {
+            atk++;
+        }
+        atk+=Math.max(0,Math.floor(Math.log(exp/100)/Math.log(1.5)));
+        def+=Math.max(0,Math.floor(Math.log(exp/100)/Math.log(1.5)));
+    }
+    function updateRooms(currRoom)
+    {
+        currRoom=currentRooms.find(r => `${r.x},${r.y}` === `${player.x},${player.y}`),player.x,player.y;
+        if(currRoom &&currRoom.type === 'bonus')
+        {
+            var p=Math.random();
+            var a=0;
+            for (const [enename,enedata] of anything){
+                a+=1/enedata[0];
+            }
+            p*=a;
+            for (const [enename,enedata] of anything){
+                p-=1/enedata[0];
+                if(p<=0)
+                {
+                    showmode='choices';
+                    aname=enename;
+                    adata=enedata;
+                    break;
+                }
+            }
+            currRoom.type='normal-2'
+        }
+        if(currRoom &&currRoom.type === 'stair_down')hint='Press Q to walk up.';
+        if(currRoom &&currRoom.type === 'stair_up')hint='Press spacebar to walk up.';
+        if(currRoom &&ENEMY.has(currRoom.type))
+        {
+            versus(Math.pow(1.1,currentFloorZ)*ENEMY.get(currRoom.type)[3],
+                Math.pow(1.1,currentFloorZ)*ENEMY.get(currRoom.type)[4],Math.pow(1.1,currentFloorZ)*ENEMY.get(currRoom.type)[5]);
+            currRoom.type='normal'
+        }
+    }
+    function checkGameOver()
+    {
+        if (hp<=0) {
+            hp=0;
+            ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "#FF0000"; 
+            ctx.font = "bold 60px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 30);
+
+            ctx.fillStyle = "#FFFFFF"; 
+            ctx.font = "24px Arial";
+            ctx.fillText("click to restart", canvas.width / 2, canvas.height / 2 + 40);
+        }
+    }
+    function renderAll() {
+        updateEnemyList();
+        updatethings()
+        ctx.fillStyle = '#222222';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        currentCorridors.forEach(drawCorridor);
+        currentRooms.forEach(drawRoom);
+        checkGameOver();
+        ctx.fillStyle = COLOR.slimeFill;
+        ctx.beginPath();
+        ctx.arc(canvas.width/2, canvas.height/2, 14, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = COLOR.slimeFill;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        if(showmode=='bag')drawInventory(ctx, bag, canvas);
+        if(showmode=='calc')drawCalc(ctx,calculatorInfo)
+        if(showmode=='choices')showChoices();
+        updateRooms();
+        ctx.fillStyle = 'white';
+        ctx.font = "bold 24px Arial";
+        ctx.textAlign = "center";
+        if(currentFloorZ)ctx.fillText(`${currentFloorZ}F`, canvas.width / 2, 24);
+        else ctx.fillText(`get ready`, canvas.width / 2, 24);
+        ctx.fillText(hint, canvas.width / 2, 50);
+        ctx.fillStyle =COLOR.exp;
+        ctx.fillText(`EXP:${exp.toFixed(2)}/\
+${(100*Math.pow(1.5,Math.max(0,Math.ceil(Math.log(exp/100)/Math.log(1.5))))).toFixed(2)}|\
+Level:${Math.max(0,Math.floor(Math.log(exp/100)/Math.log(1.5)))+1}`, canvas.width / 2, 100);
+        ctx.fillStyle = COLOR.slimeFill;
+        ctx.fillText(`HP:${hp.toFixed(2)}`, canvas.width / 2, canvas.height-24);
+        ctx.fillStyle = COLOR.atkFill;
+        ctx.fillText(`ATK:${atk.toFixed(2)}`, 90, canvas.height-24);
+        ctx.fillStyle = COLOR.defFill;
+        ctx.fillText(`DEF:${def.toFixed(2)}`, canvas.width-90, canvas.height-24);
+    }
+    updateVisibility(0,0);
+    renderAll();
+    document.addEventListener('keydown', function (e) {
+        if(hp<=0)return;
+        const key = e.key.toLowerCase();
+        const step = 1;
+        let addX = 0, addY = 0;
+        const playerKey = `${player.x},${player.y}`;
+        const currRoom = currentRooms.find(r => `${r.x},${r.y}` === playerKey);
+        switch (key) {
+            case 'arrowup': case 'w': addY = step; break;
+            case 'arrowdown': case 's': addY = -step; break;
+            case 'arrowleft': case 'a': addX = -step; break;
+            case 'arrowright': case 'd': addX = step; break;
+            case 'b':showmode=showmode=='bag'?'':'bag';
+            case 'q':
+                if (currRoom && currRoom.type === 'stair_down') {
+                    player.z += 1;
+                    player.x=player.y=0;
+                    reloadFloor(player.z);
+                    renderAll();
+                }
+                return;
+
+            case ' ':
+                if (player.z <= 1) return;
+                if (currRoom && currRoom.type === 'stair_up') {
+                    player.z -= 1;
+                    player.x=stairlist[player.z-1][0];
+                    player.y=stairlist[player.z-1][1]
+                    reloadFloor(player.z);
+                    renderAll();
+                }
+                return;
+            case 'z':prevEnemy();break;
+            case 'm':nextEnemy();break;
+            case 'n':
+                if(!hasItem('enemy damage calculator'))return;
+                if (enemyList.length > 0) {
+                const enemy = enemyList[enemyPage];
+                if (enemy) {
+                    showmode=showmode=='calc'?'':'calc'
+                    const [rarity,genfloor, desc, hp, atk, def] = enemy.data;
+                    calculatorInfo = {
+                        name: enemy.type,
+                        hp, atk, def,
+                        dmg: calcdmg(hp, atk, def),
+                        description: desc,
+                        rarity: rarity
+                    };
+                }
+            }
+            case 'h':
+                if(showmode==='choices')
+                {
+                    hp+=10;showmode='';
+                }
+                break;
+            case 'j':
+                if(showmode==='choices')
+                {
+                    bag.addItem({
+                        name: aname,
+                        description: adata[1],
+                        volume: adata[2],
+                        quantity: 1
+                    })
+                    showmode='';
+                }
+                break;
+            return;
+        }
+        console.log(player.x,player.y,player.z)
+        const tarX = player.x + addX;
+        const tarY = player.y + addY;
+        const keyStr = `${tarX},${tarY}`;
+        if (currentWalkable.has(keyStr)) {
+            player.x = tarX;
+            player.y = tarY;
+            updateVisibility(player.x, player.y);
+            renderAll()
+        }
+    });
+    setInterval(renderAll,120);
+    canvas.onclick = () => canvas.focus();
+</script>
+</body>
+</html>
