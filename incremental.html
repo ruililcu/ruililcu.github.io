@@ -1,0 +1,21 @@
+<h1>unnamed</h1>
+<br>
+<h1>Ver 0.1α </h1>
+<h2 id="your_point">Point:_</h2>
+<p id="speed">v=_ point/s</p>
+<button id="click_here" onclick="spd++;">SPEED UP!</button>
+<script>
+	let pK=100;
+	let spd=0;
+	let Point=0;
+	let ptscr=document.getElementById("your_point");
+	let spdscr=document.getElementById("speed");
+	function update()
+	{
+		spd*=(1-1/pK);
+		Point+=spd/60;
+		ptscr.textContent="Point:"+Point;
+		spdscr.textContent="v="+spd;+"point/s";
+	}
+	setInterval(update,50/3)
+</script>
