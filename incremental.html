@@ -45,8 +45,8 @@
 <button id="click_here" class="biggerButton" onclick="spd+=clickPower;">SPEED UP!</button>
 <br>
 <h2>Upgrades</h2>
-<button id="booster" onclick="booster();"></button>
-<button id="smoother" style="background-color:#fedcde;"onclick="smoother();"></button>
+<button id="booster" style="background-color:#fedcde;" onclick="booster();"></button>
+<button id="smoother" onclick="smoother();"></button>
 <script>
 	let pK=100;
 	let spd=0;
@@ -73,7 +73,7 @@
 		if(price>coin||k>=maxk)return;
 		eval(eff);
 	}
-	const booster=()=>fastUpgrade(Point,300,"clickPower++;boosterCounter++;Point-=boosterPrice;boosterPrice*=1.5;");
+	const booster=()=>fastUpgrade(Point,boosterPrice,"clickPower++;boosterCounter++;Point-=boosterPrice;boosterPrice*=1.5;");
 	const smoother=()=>fastUpgrade(Point,100,"pK+=30;smootherCounter++;Point-=100;",smootherCounter,20);
 	setInterval(update,50/3);
 </script>
