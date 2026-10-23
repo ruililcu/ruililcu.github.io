@@ -5,49 +5,77 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sliding Incremental</title>
 <style>
-body
-{
-	background-color:#04011f;
-	color:white;
-	text-align:center
-}
-button
-{
-	width:200px;
-	height:60px;
-	background-color:#dcfede;
-	color:black;
-	border-radius:4px;
-	border:none;
-	transition: transform 0.25s ease;
-}
-button:hover
-{
-	transform:scale(1.2);
-}
+	body
+	{
+		background-color:#04011f;
+		color:white;
+		text-align:center
+	}
+	button
+	{
+		width:150px;
+		height:50px;
+		background-color:#dcfede;
+		color:black;
+		border-radius:4px;
+		border:none;
+		transition: transform 0.25s ease;
+	}
+	.biggerButton
+	{
+		width:200px;
+		height:60px;
+	}
+	button:hover
+	{
+		transform:scale(1.2);
+	}
+	button:active
+	{
+		transform:scale(0.9);
+		background-color:#cbedcd;
+	}
 </style>
 </head>
 <body>
 <h1>Sliding Incremental</h1>
+<p>Ver 0.2-alpha</p>
+<h2 id="your_point"></h2>
+<p id="speed"></p>
+<button id="click_here" class="biggerButton" onclick="spd+=clickPower;">SPEED UP!</button>
 <br>
-<p>Ver 0.1.1-alpha </p>
-<h2 id="your_point">Point:_</h2>
-<p id="speed">v=_ point/s</p>
-<button id="click_here" onclick="spd++;">SPEED UP!</button>
+<h2>Upgrades</h2>
+<button id="booster" onclick="booster();"></button>
+<button id="smoother" style="background-color:#fedcde;"onclick="smoother();"></button>
 <script>
 	let pK=100;
 	let spd=0;
 	let Point=0;
+	let clickPower=1;
+	let boosterPrice=300;
+	let boosterCounter=0;
+	let smootherCounter=0;
 	let ptscr=document.getElementById("your_point");
 	let spdscr=document.getElementById("speed");
+	let boosterupg=document.getElementById("booster");
+	let smootherupg=document.getElementById("smoother");
 	function update()
 	{
 		spd*=(1-1/pK);
 		Point+=spd/60;
-		ptscr.innerHTML="Point:<span style=\"color:#dcfede\">"+Point.toFixed(2)+"</span>";
-		spdscr.innerHTML="v=<span style=\"color:#fedcde\">"+spd.toFixed(2);+"point/s";
+		ptscr.innerHTML="You have <span style=\"color:#dcfede;font-size:30px\">"+Point.toFixed(2)+"</span> Points";
+		spdscr.innerHTML="<span style=\"color:#fedcde;font-size:15px\">"+spd.toFixed(2)+"</span> Points/s";
+		boosterupg.innerHTML="Booster(<span style=\"font-size:20px\">"+boosterCounter+"</span>) cost:"+boosterPrice.toFixed(2)+"points";
+		smootherupg.innerHTML="Smoother(<span style=\"font-size:20px\">"+smootherCounter+"</span>/20) cost:100.00 points";
 	}
-	setInterval(update,50/3)
+	function fastUpgrade(coin,price,eff,k=0,maxk=1)
+	{
+		if(price>coin||k>=maxk)return;
+		eval(eff);
+	}
+	const booster=()=>fastUpgrade(Point,300,"clickPower++;boosterCounter++;Point-=boosterPrice;boosterPrice*=1.5;");
+	const smoother=()=>fastUpgrade(Point,100,"pK+=30;smootherCounter++;Point-=100;",smootherCounter,20);
+	setInterval(update,50/3);
 </script>
 </body>
 </html>
