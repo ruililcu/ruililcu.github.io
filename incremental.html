@@ -13,8 +13,8 @@
 	}
 	button
 	{
-		width:150px;
-		height:50px;
+		width:170px;
+		height:60px;
 		background-color:#dcfede;
 		color:black;
 		border-radius:4px;
@@ -23,9 +23,17 @@
 	}
 	.biggerButton
 	{
-		width:200px;
-		height:60px;
+		width:250px;
+		height:70px;
 	}
+    .upgrade-card
+    {
+        width:500px;
+        background-color:#07023f;
+        border-radius:12px;
+        padding:5px;
+        margin:auto;
+    }
 	button:hover
 	{
 		transform:scale(1.2);
@@ -39,43 +47,72 @@
 </head>
 <body>
 <h1>Sliding Incremental</h1>
-<p>Ver 0.2-alpha</p>
+<p>Ver 0.2.1-alpha</p>
 <h2 id="your_point"></h2>
 <p id="speed"></p>
-<button id="click_here" class="biggerButton" onclick="spd+=clickPower;">SPEED UP!</button>
+<button id="click_here" class="biggerButton" onclick="spd+=clickPower*(clickTime**(clickMultCounter/10));clickTime++;">SPEED UP!</button>
 <br>
-<h2>Upgrades</h2>
-<button id="booster" style="background-color:#fedcde;" onclick="booster();"></button>
-<button id="smoother" onclick="smoother();"></button>
+<br>
+<div class="upgrade-card">
+    <h2>Upgrades</h2>
+    <h3>Upgrades I</h3>
+    <button id="booster" style="background-color:#fedcde;" onclick="booster();"></button>
+    <button id="smoother" onclick="smoother();"></button>
+    <br>
+    <h3>Upgrades II</h3>
+    <button id="clickMult" style="background-color:#fedcde;" onclick="clickMult();"></button>
+    <button id="extentedSmoother" onclick="extentedSmoother();"></button>
+</div>
 <script>
 	let pK=100;
 	let spd=0;
 	let Point=0;
 	let clickPower=1;
+    let clickTime=0;
 	let boosterPrice=300;
+    let clickMultPrice=20000;
+    let extentedSmootherPrice=20000;
 	let boosterCounter=0;
 	let smootherCounter=0;
+    let clickMultCounter=0;
+	let extentedSmootherCounter=0;
 	let ptscr=document.getElementById("your_point");
 	let spdscr=document.getElementById("speed");
 	let boosterupg=document.getElementById("booster");
 	let smootherupg=document.getElementById("smoother");
+    let clickMultupg=document.getElementById("clickMult");
+	let extentedSmootherupg=document.getElementById("extentedSmoother");
 	function update()
 	{
-		spd*=(1-1/pK);
+		spd*=(1-1/(pK*(extentedSmootherCounter+1)));
 		Point+=spd/60;
-		ptscr.innerHTML="You have <span style=\"color:#dcfede;font-size:30px\">"+Point.toFixed(2)+"</span> Points";
-		spdscr.innerHTML="<span style=\"color:#fedcde;font-size:15px\">"+spd.toFixed(2)+"</span> Points/s";
-		boosterupg.innerHTML="Booster(<span style=\"font-size:20px\">"+boosterCounter+"</span>) cost:"+boosterPrice.toFixed(2)+"points";
+		ptscr.innerHTML="You have <span style=\"color:#dcfede;font-size:30px\">"+SimpleFormat(Point)+"</span> Points";
+		spdscr.innerHTML="<span style=\"color:#fedcde;font-size:20px\">"+SimpleFormat(spd)+"</span> Points/s";
+		boosterupg.innerHTML="Booster(<span style=\"font-size:20px\">"+boosterCounter+
+            "</span>) cost:"+SimpleFormat(boosterPrice)+"points";
 		smootherupg.innerHTML="Smoother(<span style=\"font-size:20px\">"+smootherCounter+"</span>/20) cost:100.00 points";
+        clickMultupg.innerHTML="Click Mult(<span style=\"font-size:20px\">"+clickMultCounter+"</span>/5,x"+
+            SimpleFormat((clickTime**(clickMultCounter/10)))+")</br> cost:"+SimpleFormat(clickMultPrice)+"points";
+		extentedSmootherupg.innerHTML="Extented Smoother(<span style=\"font-size:20px\">"+
+            extentedSmootherCounter+"</span>/5)</br>cost:"+SimpleFormat(extentedSmootherPrice)+"points";
 	}
 	function fastUpgrade(coin,price,eff,k=0,maxk=1)
 	{
 		if(price>coin||k>=maxk)return;
 		eval(eff);
 	}
+    function SimpleFormat(n)
+    {
+        if(n<1e9)return n.toLocaleString("en",{minimumFractionDigits:2,maximumFractionDigits:2});
+        else return n.toExponential(2).replace('e+','e');
+    }
 	const booster=()=>fastUpgrade(Point,boosterPrice,"clickPower++;boosterCounter++;Point-=boosterPrice;boosterPrice*=1.5;");
 	const smoother=()=>fastUpgrade(Point,100,"pK+=30;smootherCounter++;Point-=100;",smootherCounter,20);
+    const clickMult=()=>fastUpgrade(Point,clickMultPrice,"clickMultCounter++;Point-=clickMultPrice;clickMultPrice*=10;",clickMultCounter,5);
+	const extentedSmoother=()=>fastUpgrade(Point,extentedSmootherPrice,
+        "extentedSmootherCounter++;Point-=extentedSmootherPrice;extentedSmootherPrice*=10;",extentedSmootherCounter,5);
 	setInterval(update,50/3);
 </script>
 </body>
 </html>
+
