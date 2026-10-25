@@ -13,7 +13,7 @@
 	}
 	button
 	{
-		width:170px;
+		min-width:130px;
 		height:60px;
 		background-color:#dcfede;
 		color:black;
@@ -21,52 +21,81 @@
 		border:none;
 		transition: transform 0.25s ease;
 	}
-	.biggerButton
+	.big-button
 	{
-		width:250px;
+		min-width:250px;
 		height:70px;
 	}
-    .upgrade-card
+    .big-card
     {
-        width:500px;
+        width:700px;
         background-color:#07023f;
         border-radius:12px;
         padding:5px;
         margin:auto;
     }
+	.small-card
+    {
+        width:500px;
+        background-color:#090350;
+        border-radius:8px;
+        padding:5px;
+		margin:auto;
+    }
 	button:hover
 	{
-		transform:scale(1.2);
+		transform:scale(1.04);
 	}
 	button:active
 	{
-		transform:scale(0.9);
-		background-color:#cbedcd;
+		transform:scale(0.98);
+		opacity:0.9;
 	}
 </style>
 </head>
 <body>
 <h1>Sliding Incremental</h1>
-<p>Ver 0.2.1-alpha</p>
-<h2 id="your_point"></h2>
+<p>Ver 0.2.2-alpha</p>
+<h2 id="your-point"></h2>
 <p id="speed"></p>
-<button id="click_here" class="biggerButton" onclick="spd+=clickPower*(clickTime**(clickMultCounter/10));clickTime++;">SPEED UP!</button>
+<button id="click_here" class="big-button" onclick="spd+=clickPower*(clickTime**(clickMultCounter/10));clickTime++;">SPEED UP!</button>
 <br>
+
 <br>
-<div class="upgrade-card">
+<div class="big-card">
     <h2>Upgrades</h2>
-    <h3>Upgrades I</h3>
-    <button id="booster" style="background-color:#fedcde;" onclick="booster();"></button>
-    <button id="smoother" onclick="smoother();"></button>
-    <br>
+	<div id="upgrade-i" class="small-card">
+		<h3>Upgrades I</h3>
+		<button id="booster" style="background-color:#fedcde;" onclick="booster();"></button>
+		<button id="smoother" onclick="smoother();"></button>
+		<p>Booster:boosts single click.</p>
+		<p>Smoother:slower decay.</p>
+	</div>
+	<br>
+	<div id="upgrade-ii" style="display:none;" class="small-card">
     <h3>Upgrades II</h3>
-    <button id="clickMult" style="background-color:#fedcde;" onclick="clickMult();"></button>
-    <button id="extentedSmoother" onclick="extentedSmoother();"></button>
+		<button id="clickMult" style="background-color:#fedcde;" onclick="clickMult();"></button>
+		<button id="extentedSmoother" onclick="extentedSmoother();"></button>
+		<p>Click Mult:boosts single click based on click times.</p>
+		<p>Extended Smoother:slower decay, but stronger.</p>
+	</div>
+	<br>
+</div>
+<br>
+<div class="big-card" id="stats">
+	<h3>More Stats</h3>
+	<p id="maxpt"></p>
+	<p id="totpt"></p>
+	<p id="maxspd"></p>
+	<p id="clicktimes"></p>
 </div>
 <script>
 	let pK=100;
 	let spd=0;
+	let maxspd=0;
 	let Point=0;
+	let maxpt=0;
+	let totalPoint=0;
 	let clickPower=1;
     let clickTime=0;
 	let boosterPrice=300;
@@ -76,25 +105,38 @@
 	let smootherCounter=0;
     let clickMultCounter=0;
 	let extentedSmootherCounter=0;
-	let ptscr=document.getElementById("your_point");
+	let ptscr=document.getElementById("your-point");
 	let spdscr=document.getElementById("speed");
 	let boosterupg=document.getElementById("booster");
 	let smootherupg=document.getElementById("smoother");
     let clickMultupg=document.getElementById("clickMult");
 	let extentedSmootherupg=document.getElementById("extentedSmoother");
+	let upgcardII=document.getElementById("upgrade-ii");
+	let maxptscr=document.getElementById("maxpt");
+	let totptscr=document.getElementById("totpt");
+	let maxspdscr=document.getElementById("maxspd");
+	let clicktimescr=document.getElementById("clicktimes");
 	function update()
 	{
 		spd*=(1-1/(pK*(extentedSmootherCounter+1)));
 		Point+=spd/60;
+		totalPoint+=spd/60;
+		maxpt=Math.max(Point,maxpt);
+		maxspd=Math.max(maxspd,spd);
 		ptscr.innerHTML="You have <span style=\"color:#dcfede;font-size:30px\">"+SimpleFormat(Point)+"</span> Points";
 		spdscr.innerHTML="<span style=\"color:#fedcde;font-size:20px\">"+SimpleFormat(spd)+"</span> Points/s";
 		boosterupg.innerHTML="Booster(<span style=\"font-size:20px\">"+boosterCounter+
-            "</span>) cost:"+SimpleFormat(boosterPrice)+"points";
-		smootherupg.innerHTML="Smoother(<span style=\"font-size:20px\">"+smootherCounter+"</span>/20) cost:100.00 points";
+            "</span>)<br>cost:"+SimpleFormat(boosterPrice)+"points";
+		smootherupg.innerHTML="Smoother(<span style=\"font-size:20px\">"+smootherCounter+"</span>/20)<br>cost:100.00 points";
         clickMultupg.innerHTML="Click Mult(<span style=\"font-size:20px\">"+clickMultCounter+"</span>/5,x"+
             SimpleFormat((clickTime**(clickMultCounter/10)))+")</br> cost:"+SimpleFormat(clickMultPrice)+"points";
-		extentedSmootherupg.innerHTML="Extented Smoother(<span style=\"font-size:20px\">"+
+		extentedSmootherupg.innerHTML="Extended Smoother(<span style=\"font-size:20px\">"+
             extentedSmootherCounter+"</span>/5)</br>cost:"+SimpleFormat(extentedSmootherPrice)+"points";
+		maxptscr.innerHTML="Max points:"+SimpleFormat(maxpt);
+		totptscr.innerHTML="Total points:"+SimpleFormat(totalPoint);
+		maxspdscr.innerHTML="Max speed:"+SimpleFormat(maxspd);
+		clicktimescr.innerHTML="Click times:"+clickTime;
+		if(totalPoint>5000)upgcardII.style.display="block";
 	}
 	function fastUpgrade(coin,price,eff,k=0,maxk=1)
 	{
@@ -115,4 +157,3 @@
 </script>
 </body>
 </html>
-
