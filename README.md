@@ -1,3 +1,3 @@
 # ruililcu.github.io
 my website(new)
-<a>ruililcu.github.io/incremental</a>
+[Sliding Incremental](https://ruililcu.github.io/incremental)
