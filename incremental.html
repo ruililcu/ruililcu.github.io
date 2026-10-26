@@ -5,155 +5,298 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sliding Incremental</title>
 <style>
-	body
-	{
-		background-color:#04011f;
-		color:white;
-		text-align:center
-	}
-	button
-	{
-		min-width:130px;
-		height:60px;
-		background-color:#dcfede;
-		color:black;
-		border-radius:4px;
-		border:none;
-		transition: transform 0.25s ease;
-	}
-	.big-button
-	{
-		min-width:250px;
-		height:70px;
-	}
+    body
+    {
+        background-color:#04011f;
+        color:white;
+        text-align:center
+    }
+    button
+    {
+        min-width:130px;
+        height:60px;
+        padding:10px;
+        background-color:#dcfede;
+        color:black;
+        border-radius:4px;
+        border:none;
+        transition: transform 0.25s ease;
+    }
+    a
+    {
+        display:inline-block; 
+        text-decoration:none;
+        padding:10px;
+        min-width:70px;
+        height:20px;
+        text-align:center;
+        background-color:#dcfede;
+        color:black;
+        border-radius:4px;
+        border:none;
+        transition: transform 0.25s ease;
+    }
+    .big-button
+    {
+        min-width:250px;
+        height:70px;
+    }
     .big-card
     {
         width:700px;
+        max-width:100%;
         background-color:#07023f;
         border-radius:12px;
         padding:5px;
         margin:auto;
     }
-	.small-card
+    .small-card
     {
         width:500px;
+        max-width:90%;
         background-color:#090350;
         border-radius:8px;
         padding:5px;
-		margin:auto;
+        margin:auto;
     }
-	button:hover
-	{
-		transform:scale(1.04);
-	}
-	button:active
-	{
-		transform:scale(0.98);
-		opacity:0.9;
-	}
+    button:hover
+    {
+        transform:scale(1.2);
+    }
+    button:active
+    {
+        transform:scale(0.9);
+        opacity:0.9;
+    }
+    a:hover
+    {
+        transform:scale(1.04);
+    }
+    a:active
+    {
+        transform:scale(0.98);
+        opacity:0.9;
+    }
+    .panel
+    {
+        display:none;
+        padding:16px;
+    }
+    .panel:target
+    {
+        display:block;
+    }
+    .tabs .panel:first-child
+    {
+        display:block;
+    }
+    .tabs:has(.panel:target) .panel
+    {
+        display:none;
+    }
+    .tabs:has(.panel:target) .panel:target
+    {
+        display:block;
+    }
+    .ach-item
+    {
+        align-items:center;
+        gap:10px;
+        padding:12px;
+        margin-bottom:8px;
+        border-radius:4px;
+        background:#68282d;
+        transition:background.3s;
+    }
+    .ach-item.done
+    {
+        background:#076b3b;
+    }
+    .ach-name
+    {
+        font-weight:600;
+    }
+    .ach-desc
+    {
+        font-size:12px;
+        opacity:0.9;
+    }
 </style>
 </head>
 <body>
 <h1>Sliding Incremental</h1>
-<p>Ver 0.2.2-alpha</p>
-<h2 id="your-point"></h2>
-<p id="speed"></p>
-<button id="click_here" class="big-button" onclick="spd+=clickPower*(clickTime**(clickMultCounter/10));clickTime++;">SPEED UP!</button>
-<br>
-<p>When you click, the speed will increase, but it decays over time.</p>
-<br>
-<div class="big-card">
-    <h2>Upgrades</h2>
-	<div id="upgrade-i" class="small-card">
-		<h3>Upgrades I</h3>
-		<button id="booster" style="background-color:#fedcde;" onclick="booster();"></button>
-		<button id="smoother" onclick="smoother();"></button>
-		<p>Booster:boosts single click.</p>
-		<p>Smoother:slower decay.</p>
-	</div>
-	<br>
-	<div id="upgrade-ii" style="display:none;" class="small-card">
-    <h3>Upgrades II</h3>
-		<button id="clickMult" style="background-color:#fedcde;" onclick="clickMult();"></button>
-		<button id="extentedSmoother" onclick="extentedSmoother();"></button>
-		<p>Click Mult:boosts single click based on click times.</p>
-		<p>Extended Smoother:slower decay, but stronger.</p>
-	</div>
-	<br>
+<p>Ver 0.3-beta</p>
+<div>
+    <a href="#main">Main</a>
+    <a href="#ach">Achievements</a>
+    <a href="#oth">Others</a>
 </div>
-<br>
-<div class="big-card" id="stats">
-	<h3>More Stats</h3>
-	<p id="maxpt"></p>
-	<p id="totpt"></p>
-	<p id="maxspd"></p>
-	<p id="clicktimes"></p>
+<div class="tabs">
+    <div class="panel" id="main">
+        <h2 id="your-point"></h2>
+        <p id="speed"></p>
+        <p>When you click, the speed will increase, but it decays over time.</p>
+        <button id="click_here" class="big-button" onclick="Game.spd+=Game.clickPower*(Game.clickTime**(Game.clickMultCounter/10));Game.clickTime++;">SPEED UP!</button>
+        <br>
+        <br>
+        <div class="big-card">
+            <h2>Upgrades</h2>
+            <div id="upgrade-i" class="small-card">
+                <h3>Upgrades I</h3>
+                <button id="booster" style="background-color:#fedcde;" onclick="booster();"></button>
+                <button id="smoother" onclick="smoother();"></button>
+                <p>Booster:boosts single click.</p>
+                <p>Smoother:slower decay.</p>
+            </div>
+            <br>
+            <div id="upgrade-ii" style="display:none;" class="small-card">
+            <h3>Upgrades II</h3>
+                <button id="clickMult" style="background-color:#fedcde;" onclick="clickMult();"></button>
+                <button id="extentedSmoother" onclick="extentedSmoother();"></button>
+                <p>Click Mult:boosts single click based on click times.</p>
+                <p>Extended Smoother:slower decay, but stronger.</p>
+            </div>
+            <br>
+        </div>
+        <br>
+    </div>
+    <div class="panel" id="ach">
+        <h2>Achievements</h2>
+        <div id="ach-list" class="big-card" style="background-color:#000000"></div>
+    </div>
+    <div class="panel" id="oth">
+        <div class="big-card" id="stats">
+            <h3>Normal Stats</h3>
+            <p id="maxpt"></p>
+            <p id="totpt"></p>
+            <p id="maxspd"></p>
+            <p id="clicktimes"></p>
+        </div>
+    </div>
 </div>
 <script>
-	let pK=100;
-	let spd=0;
-	let maxspd=0;
-	let Point=0;
-	let maxpt=0;
-	let totalPoint=0;
-	let clickPower=1;
-    let clickTime=0;
-	let boosterPrice=300;
-    let clickMultPrice=20000;
-    let extentedSmootherPrice=20000;
-	let boosterCounter=0;
-	let smootherCounter=0;
-    let clickMultCounter=0;
-	let extentedSmootherCounter=0;
-	let ptscr=document.getElementById("your-point");
-	let spdscr=document.getElementById("speed");
-	let boosterupg=document.getElementById("booster");
-	let smootherupg=document.getElementById("smoother");
-    let clickMultupg=document.getElementById("clickMult");
-	let extentedSmootherupg=document.getElementById("extentedSmoother");
-	let upgcardII=document.getElementById("upgrade-ii");
-	let maxptscr=document.getElementById("maxpt");
-	let totptscr=document.getElementById("totpt");
-	let maxspdscr=document.getElementById("maxspd");
-	let clicktimescr=document.getElementById("clicktimes");
-	function update()
-	{
-		spd*=(1-1/(pK*(extentedSmootherCounter+1)));
-		Point+=spd/60;
-		totalPoint+=spd/60;
-		maxpt=Math.max(Point,maxpt);
-		maxspd=Math.max(maxspd,spd);
-		ptscr.innerHTML="You have <span style=\"color:#dcfede;font-size:30px\">"+SimpleFormat(Point)+"</span> Points";
-		spdscr.innerHTML="<span style=\"color:#fedcde;font-size:20px\">"+SimpleFormat(spd)+"</span> Points/s";
-		boosterupg.innerHTML="Booster(<span style=\"font-size:20px\">"+boosterCounter+
-            "</span>)<br>cost:"+SimpleFormat(boosterPrice)+"points";
-		smootherupg.innerHTML="Smoother(<span style=\"font-size:20px\">"+smootherCounter+"</span>/20)<br>cost:100.00 points";
-        clickMultupg.innerHTML="Click Mult(<span style=\"font-size:20px\">"+clickMultCounter+"</span>/5,x"+
-            SimpleFormat((clickTime**(clickMultCounter/10)))+")</br> cost:"+SimpleFormat(clickMultPrice)+"points";
-		extentedSmootherupg.innerHTML="Extended Smoother(<span style=\"font-size:20px\">"+
-            extentedSmootherCounter+"</span>/5)</br>cost:"+SimpleFormat(extentedSmootherPrice)+"points";
-		maxptscr.innerHTML="Max points:"+SimpleFormat(maxpt);
-		totptscr.innerHTML="Total points:"+SimpleFormat(totalPoint);
-		maxspdscr.innerHTML="Max speed:"+SimpleFormat(maxspd);
-		clicktimescr.innerHTML="Click times:"+clickTime;
-		if(totalPoint>5000)upgcardII.style.display="block";
-	}
-	function fastUpgrade(coin,price,eff,k=0,maxk=1)
-	{
-		if(price>coin||k>=maxk)return;
-		eval(eff);
-	}
+    let Game;
+    const raw=localStorage.getItem('ruililcu-Sliding');
+    if(raw)
+    {
+        try
+        {
+            Game=JSON.parse(decodeURIComponent(atob(raw)));
+        }
+        catch (e)
+        {
+            console.warn('My save!', e);
+        }
+    }
+    if(!Game)
+    {
+        Game=
+        {
+            pK:100,
+            spd:0,
+            maxspd:0,
+            Point:0,
+            maxpt:0,
+            totalPoint:0,
+            clickPower:1,
+            clickTime:0,
+            boosterPrice:300,
+            clickMultPrice:20000,
+            extentedSmootherPrice:20000,
+            boosterCounter:0,
+            smootherCounter:0,
+            clickMultCounter:0,
+            extentedSmootherCounter:0,
+            unlockedIds:[]
+        };
+    }
+    const ptscr=document.getElementById("your-point");
+    const spdscr=document.getElementById("speed");
+    const boosterupg=document.getElementById("booster");
+    const smootherupg=document.getElementById("smoother");
+    const clickMultupg=document.getElementById("clickMult");
+    const extentedSmootherupg=document.getElementById("extentedSmoother");
+    const upgcardII=document.getElementById("upgrade-ii");
+    const maxptscr=document.getElementById("maxpt");
+    const totptscr=document.getElementById("totpt");
+    const maxspdscr=document.getElementById("maxspd");
+    const clicktimescr=document.getElementById("clicktimes");
+    const ACH=
+    [
+        {id:'1-1',name:"1.Welcome",desc:'Click the button.',test:()=>Game.clickTime>0},
+        {id:'1-2',name:"2.Faster!",desc:'Buy a booster.',test:()=>Game.boosterCounter>0},
+        {id:'1-3',name:"3.Is it useless?",desc:'Buy a smoother.',test:()=>Game.smootherCounter>0},
+        {id:'1-4',name:"4.It isn't useless.",desc:'Buy 5 smoother.',test:()=>Game.smootherCounter>=5},
+        {id:'1-5',name:"5.What a lot!",desc:'Get 10,000 Points in total.',test:()=>Game.totalPoint>=10000},
+        {id:'1-6',name:"6.So tired!",desc:'Click 500 times.',test:()=>Game.clickTime>=500},
+        {id:'1-7',name:"7.Master of Upgrades",desc:'Have 10 Booster and 20 Smoother.',test:()=>Game.boosterCounter>=10&&Game.smootherCounter>=20},
+        {id:'1-8',name:"8.Spend 40,000 Points?",desc:'Buy 1 Click Mult and an Extended Smoother.',test:()=>Game.clickMultCounter>0&&Game.extentedSmootherCounter>0},
+    ];
+    function update()
+    {
+        Game.Point+=Game.spd/60;
+        Game.maxpt=Math.max(Game.Point,Game.maxpt);
+        Game.maxspd=Math.max(Game.maxspd,Game.spd);
+        Game.totalPoint+=Game.spd/60;   
+        ptscr.innerHTML="You have <span style=\"color:#dcfede;font-size:30px\">"+SimpleFormat(Game.Point)+"</span> Points";
+        spdscr.innerHTML="<span style=\"color:#fedcde;font-size:20px\">"+SimpleFormat(Game.spd)+"</span> Points/s";
+        boosterupg.innerHTML="Booster(<span style=\"font-size:20px\">"+Game.boosterCounter+
+            "</span>)<br>cost:"+SimpleFormat(Game.boosterPrice)+"points";
+        smootherupg.innerHTML="Smoother(<span style=\"font-size:20px\">"+Game.smootherCounter+"</span>/20)<br>cost:100.00 points";
+        clickMultupg.innerHTML="Click Mult(<span style=\"font-size:20px\">"+Game.clickMultCounter+"</span>/5,x"+
+            SimpleFormat((Game.clickTime**(Game.clickMultCounter/10)))+")</br> cost:"+SimpleFormat(Game.clickMultPrice)+"points";
+        extentedSmootherupg.innerHTML="Extended Smoother(<span style=\"font-size:20px\">"+
+            Game.extentedSmootherCounter+"</span>/5)</br>cost:"+SimpleFormat(Game.extentedSmootherPrice)+"points";
+        maxptscr.innerHTML="Max points:"+SimpleFormat(Game.maxpt);
+        totptscr.innerHTML="Total points:"+SimpleFormat(Game.totalPoint);
+        maxspdscr.innerHTML="Max speed:"+SimpleFormat(Game.maxspd);
+        clicktimescr.innerHTML="Click times:"+Game.clickTime;
+        checkAchievements();
+        Game.spd*=(1-1/(Game.pK*(Game.extentedSmootherCounter+1)));
+        if(Game.totalPoint>5000)upgcardII.style.display="block";
+    }
+    function fastUpgrade(coin,price,eff,k=0,maxk=1)
+    {
+        if(price>coin||k>=maxk)return;
+        eval(eff);
+    }
     function SimpleFormat(n)
     {
         if(n<1e9)return n.toLocaleString("en",{minimumFractionDigits:2,maximumFractionDigits:2});
         else return n.toExponential(2).replace('e+','e');
     }
-	const booster=()=>fastUpgrade(Point,boosterPrice,"clickPower++;boosterCounter++;Point-=boosterPrice;boosterPrice*=1.5;");
-	const smoother=()=>fastUpgrade(Point,100,"pK+=30;smootherCounter++;Point-=100;",smootherCounter,20);
-    const clickMult=()=>fastUpgrade(Point,clickMultPrice,"clickMultCounter++;Point-=clickMultPrice;clickMultPrice*=10;",clickMultCounter,5);
-	const extentedSmoother=()=>fastUpgrade(Point,extentedSmootherPrice,
-        "extentedSmootherCounter++;Point-=extentedSmootherPrice;extentedSmootherPrice*=10;",extentedSmootherCounter,5);
-	setInterval(update,50/3);
+    function checkAchievements()
+    {
+        for(let i=0;i<ACH.length;i++)
+        {
+            const def=ACH[i];
+            if(Game.unlockedIds.indexOf(def.id)!=-1)continue;
+            if(def.test())Game.unlockedIds.push(def.id);
+        }
+        renderAchievements();
+    }
+    function renderAchievements()
+    {
+        const box=document.getElementById('ach-list');
+        let html='';
+        for(let i=0;i<ACH.length;i++)
+        {
+            const def=ACH[i];
+            const done=Game.unlockedIds.indexOf(def.id) !== -1;
+            html+='<div class="ach-item'+(done?' done':'')+'">'+
+                '<div><div class="ach-name">'+def.name+'</div>'+
+                '<div class="ach-desc">'+def.desc+'</div></div>'+
+                '</div>';
+        }
+        box.innerHTML=html;
+    }
+    const booster=()=>fastUpgrade(Game.Point,Game.boosterPrice,"Game.clickPower++;Game.boosterCounter++;Game.Point-=Game.boosterPrice;Game.boosterPrice*=1.5;");
+    const smoother=()=>fastUpgrade(Game.Point,100,"Game.pK+=30;Game.smootherCounter++;Game.Point-=100;",Game.smootherCounter,20);
+    const clickMult=()=>fastUpgrade(Game.Point,Game.clickMultPrice,"Game.clickMultCounter++;Game.Point-=Game.clickMultPrice;Game.clickMultPrice*=10;",Game.clickMultCounter,5);
+    const extentedSmoother=()=>fastUpgrade(Game.Point,Game.extentedSmootherPrice,
+        "Game.extentedSmootherCounter++;Game.Point-=Game.extentedSmootherPrice;Game.extentedSmootherPrice*=10;",Game.extentedSmootherCounter,5);
+    setInterval(update,50/3);
+    setInterval(()=>localStorage.setItem('ruililcu-Sliding', btoa(encodeURIComponent(JSON.stringify(Game)))),15000);
 </script>
 </body>
 </html>
